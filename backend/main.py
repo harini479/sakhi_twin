@@ -117,46 +117,78 @@ async def patient_chat(req: ChatRequest):
             "text": req.message
         })
 
-        # C. Check Who is Processing This
-        if session_state.get("active_handler") != "twin":
+        # C. MUTE LOGIC (Digital Twin Architecture)
+        # If the active handler is 'human', bypass the AI auto-response entirely.
+        if session_state.get("active_handler") == "human":
             return {
-                "status": "forwarded_to_human", 
-                "active_handler": session_state["active_handler"], 
-                "message": "Message saved for human expert."
+                "status": "bypassed", 
+                "active_handler": "human", 
+                "message": "AI auto-response bypassed. Message saved for human expert."
             }
             
-        # D. Simple Emergency Rule (Bypassing heavy determinist classifier for this implementation)
-        is_emergency = any(word in req.message.lower() for word in ["pain", "blood", "emergency", "help"])
-        if is_emergency:
-            await async_supabase_update(
-                "session_states", 
-                match=f"user_id=eq.{req.user_id}", 
-                data={"active_handler": "nurse", "is_emergency": True}
-            )
-            reply_text = "I've detected potential urgency in your message. I am immediately alerting the Nurse to review your case."
-            
-            # Save the emergency handover notice
-            await async_supabase_insert("messages", {
-                "user_id": req.user_id,
-                "sender": "twin",
-                "text": reply_text
-            })
-            
-            return {
-                "status": "responded",
-                "reply": reply_text,
-                "active_handler": "nurse"
-            }
-
-        # E. HIERARCHICAL RAG KNOWLEDGE HUB SEARCH
-        # 1. Generate text embedding for user's message
+        # Generate embedding early for both Emergency Gate and Knowledge Hub
         embed_resp = await openai_client.embeddings.create(
             input=[req.message],
             model="text-embedding-3-small"
         )
         query_embedding = embed_resp.data[0].embedding
-        
-        # 2. Query Knowledge Hub via RPC
+            
+        # D. DETERMINISTIC SIMILARITY GATE (EMERGENCY GATE)
+        # Check pgvector for > 0.85 similarity to emergency/high-risk logic vault rules
+        is_emergency = False
+        try:
+            emergency_hits = await async_supabase_rpc("hierarchical_search", {
+                "query_embedding": query_embedding,
+                "match_threshold": 0.85,
+                "match_count": 1
+            })
+            if emergency_hits and len(emergency_hits) > 0:
+                is_emergency = True
+        except Exception as e:
+            print(f"Similarity gate RPC failed: {e}")
+            
+        # Fallback string match for safety
+        if not is_emergency:
+            is_emergency = any(word in req.message.lower() for word in ["bleeding", "pain", "emergency", "ohss", "shortness of breath", "severe"])
+
+        if is_emergency:
+            # Fetch last 10 messages for the Recap Brief
+            history_resp = await async_supabase_select("messages", filters=f"user_id=eq.{req.user_id}&order=timestamp.desc&limit=10")
+            history_text = "\n".join([f"{m.get('sender', 'unknown')}: {m.get('text', '')}" for m in reversed(history_resp)]) if history_resp else "No recent history."
+            
+            # E. OPENAI INTEGRATION: RECAP BRIEF
+            recap_prompt = f"Summarize the following patient conversation history. Focus strictly on clinical symptoms, pain levels, and urgency markers. Keep it very concise.\n\nConversation:\n{history_text}"
+            recap_resp = await openai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "system", "content": recap_prompt}],
+                temperature=0.1,
+                max_tokens=150
+            )
+            recap_brief = recap_resp.choices[0].message.content.strip()
+            
+            # Trigger Human Takeover Flag
+            await async_supabase_update(
+                "session_states", 
+                match=f"user_id=eq.{req.user_id}", 
+                data={"active_handler": "human", "is_emergency": True}
+            )
+            
+            takeover_message = "Your symptoms require expert review. I have escalated this to the clinical team."
+            await async_supabase_insert("messages", {
+                "user_id": req.user_id,
+                "sender": "twin",
+                "text": takeover_message
+            })
+            
+            return {
+                "status": "takeover_triggered",
+                "active_handler": "human",
+                "recap_brief": recap_brief,
+                "reply": takeover_message
+            }
+
+        # F. HIERARCHICAL RAG KNOWLEDGE HUB SEARCH
+        # Query ordinary context (threshold 0.65)
         try:
             kb_results = await async_supabase_rpc("hierarchical_search", {
                 "query_embedding": query_embedding,
@@ -164,13 +196,11 @@ async def patient_chat(req: ChatRequest):
                 "match_count": 3
             })
         except Exception as e:
-            print(f"Warning: HRAG search failed or not configured: {e}")
             kb_results = []
             
-        # 3. Format Context
         context_block = "\\n\\n".join([f"[{r.get('header_path', 'Info')}]: {r.get('section_content', '')}" for r in kb_results]) if kb_results else "No specific context available."
 
-        # F. OPENAI RESPONSE GENERATION
+        # G. OPENAI RESPONSE GENERATION
         system_prompt = f"""You are Sakhi, a Verified Digital Twin and friendly medical assistant for fertility and pregnancy health.
 Use the Context Provided below from our Knowledge Hub to answer the user's question accurately.
 If the context doesn't have the answer, decline politely and state you will transfer them to a nurse.
@@ -191,7 +221,7 @@ Do NOT give definitive medical diagnosis, only triage and guidance.
         )
         twin_reply_text = llm_response.choices[0].message.content.strip()
 
-        # G. Save Twin's Reply
+        # H. Save Twin's Reply
         await async_supabase_insert("messages", {
             "user_id": req.user_id,
             "sender": "twin",
@@ -237,6 +267,63 @@ Keep it strictly clinical, concise, and structured. Explain your reasoning brief
             "logic_triggered": "SKL_EXPERT_SYNTHESIS",
             "draft": draft_text
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/handover/resolve")
+async def resolve_session(req: HandoverRequest):
+    """
+    Marks a session as resolved/closed. 
+    This triggers the appearance of the patient summary in the archive.
+    """
+    try:
+        await async_supabase_update(
+            "session_states",
+            match=f"user_id=eq.{req.user_id}",
+            data={"is_resolved": True}
+        )
+        return {"status": "success", "message": "Session resolved and moved to summaries."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/patients/{user_id}/summary")
+async def generate_patient_summary(user_id: str):
+    """
+    Fetches patient history and uses LLM to generate a concise summary 
+    of the case and the Twin's suggestions.
+    """
+    try:
+        # 1. Fetch history
+        filters = f"user_id=eq.{user_id}&order=timestamp.asc"
+        messages = await async_supabase_select("messages", filters=filters)
+        
+        if not messages:
+            return {"status": "empty", "summary": "No conversation history found for this patient."}
+            
+        history_text = "\n".join([f"{m.get('sender', 'unknown')}: {m.get('text', '')}" for m in messages])
+        
+        # 2. LLM Summarization
+        summary_prompt = f"""You are a Clinical Lead summarizing a fertility patient's interaction with the Digital Twin.
+Analyze the following conversation and provide a concise summary (max 3 sentences).
+Highlight:
+1. The patient's main concern or symptoms.
+2. The Digital Twin's suggestion or triage action.
+3. Current sentiment (Stable/Concerned).
+
+Conversation:
+{history_text}
+"""
+        resp = await openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "system", "content": summary_prompt}],
+            temperature=0.3,
+            max_tokens=200
+        )
+        summary = resp.choices[0].message.content.strip()
+        
+        return {"status": "success", "summary": summary}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

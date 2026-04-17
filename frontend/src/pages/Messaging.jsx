@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
@@ -8,8 +8,10 @@ import {
   MoreVertical, 
   Phone,
   Bot,
-  Send
+  Send,
+  AlertTriangle
 } from 'lucide-react';
+import { supabase } from '../supabase';
 
 const SEVERITY_CONFIG = {
   critical: { label: 'Critical', bg: '#fef2f2', color: '#dc2626', dot: '#ef4444' },
@@ -17,86 +19,79 @@ const SEVERITY_CONFIG = {
   safe:     { label: 'Safe',     bg: '#f0fdf4', color: '#16a34a', dot: '#22c55e' },
 };
 
-const PATIENTS = [
-  { 
-    id: '1', 
-    name: 'Aasha', 
-    initials: 'AA',
-    color: '#ef4444',
-    stage: 'critical',
-    lastMessage: 'AI Twin recommended increasing fluid intake...', 
-    time: '4 min ago', 
-    status: 'received',
-    messages: [
-      { id: 1, sender: 'Patient', text: 'My stomach is extremely bloated and I feel nauseous. It is been 3 days since my egg retrieval.', time: '09:00 AM' },
-      { id: 2, sender: 'AI Twin', text: 'I understand how uncomfortable that must be. Bloating after egg retrieval can occur. Have you noticed any decreased urination or shortness of breath?', time: '09:02 AM' },
-      { id: 3, sender: 'Patient', text: 'Yes, I have not gone to the bathroom much since yesterday.', time: '09:05 AM' },
-      { id: 4, sender: 'AI Twin', text: 'Decreased urination with severe bloating could indicate Ovarian Hyperstimulation Syndrome (OHSS). I have flagged this to the clinical team immediately. Please start drinking electrolytes and rest.', time: '09:06 AM' }
-    ]
-  },
-  { 
-    id: '2', 
-    name: 'Ananya S.', 
-    initials: 'AN',
-    color: '#8b5cf6',
-    stage: 'critical',
-    lastMessage: 'Whisper Draft pending review...', 
-    time: 'Just now', 
-    status: 'seen',
-    hasPendingWhisper: true,
-    messages: [
-      { id: 1, sender: 'Patient', text: 'I just had some light bleeding and cramping today. I am currently 6 days post embryo transfer.', time: '09:45 AM' }
-    ],
-    whisperDraft: {
-      text: "Light spotting and mild cramping can be normal implantation symptoms 6 days post-transfer. However, please continue your Progesterone support exactly as prescribed, abstain from heavy lifting, and monitor the bleeding. If it becomes heavy like a period, alert us immediately.",
-      logic: "SKL_EXPERT_SYNTHESIS triggered. Post-transfer spotting protocol. Escalated past Ops Twin for Fertility Expert validation.",
-      time: "09:46 AM"
-    }
-  },
-  { 
-    id: '3', 
-    name: 'Shreya', 
-    initials: 'SG',
-    color: '#f59e0b',
-    stage: 'moderate',
-    lastMessage: 'Upload link provided for ultrasound...', 
-    time: '12 min ago', 
-    status: 'sent',
-    messages: [
-      { id: 1, sender: 'Patient', text: 'I got my Day 2 follicular scan done at the local clinic today.', time: '10:15 AM' },
-      { id: 2, sender: 'AI Twin', text: 'Excellent. Could you please upload the ultrasound report using the patient portal link we sent earlier?', time: '10:17 AM' },
-      { id: 3, sender: 'Patient', text: 'Done. Please check.', time: '10:20 AM' },
-      { id: 4, sender: 'AI Twin', text: 'Received. The Operations Team has attached it to your cycle file. The doctor will review the antral follicle count before your stimulation starts tomorrow.', time: '10:21 AM' }
-    ]
-  },
-  { 
-    id: '4', 
-    name: 'Arya', 
-    initials: 'AR',
-    color: '#10b981',
-    stage: 'safe',
-    lastMessage: 'Dosing instructions confirmed.', 
-    time: '25 min ago', 
-    status: 'seen',
-    messages: [
-      { id: 1, sender: 'Patient', text: 'Should I take my Gonal-F injection in the morning or evening?', time: '11:00 AM' },
-      { id: 2, sender: 'AI Twin', text: 'Your protocol specifies that Gonal-F should be taken in the evening at approximately the same time every day, usually between 7 PM and 9 PM.', time: '11:02 AM' },
-      { id: 3, sender: 'Patient', text: 'Okay, I will take it at 8 PM. Thanks.', time: '11:05 AM' },
-      { id: 4, sender: 'AI Twin', text: 'Perfect. Consistency is key for optimal follicle stimulation. Reach out if you have any trouble administering the injection.', time: '11:06 AM' }
-    ]
-  }
-];
-
 const Messaging = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [twinActive, setTwinActive] = useState(true);
   const [doctorMessage, setDoctorMessage] = useState('');
-  const [patients, setPatients] = useState(PATIENTS);
   
-  const [conversations, setConversations] = useState(
-    Object.fromEntries(patients.map(p => [p.id, p.messages]))
-  );
+  const [patients, setPatients] = useState([]);
+  const [conversations, setConversations] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // 1. Fetch profiles and session states from Backend
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/patients');
+        if (res.ok) {
+          const data = await res.json();
+          setPatients(data.patients || []);
+        }
+      } catch (err) {
+        console.error("Fetch patients failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPatients();
+  }, []);
+
+  // 2. Fetch specific patient messages when selected
+  useEffect(() => {
+    if (!selectedId) return;
+
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/patients/${selectedId}/messages`);
+        if (res.ok) {
+          const data = await res.json();
+          setConversations(prev => ({ ...prev, [selectedId]: data.messages || [] }));
+        }
+      } catch (err) {
+        console.error("Fetch messages failed:", err);
+      }
+    };
+    fetchMessages();
+
+    // 3. Setup Supabase Realtime Subscription for this patient's messages
+    const channel = supabase
+      .channel(`messages_${selectedId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `user_id=eq.${selectedId}` }, 
+        (payload) => {
+          setConversations(prev => {
+            const existing = prev[selectedId] || [];
+            // Basic dedupe check
+            if (existing.find(m => m.message_id === payload.new.message_id)) return prev;
+            return { ...prev, [selectedId]: [...existing, payload.new] };
+          });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedId]);
+
+  // Sync session state for toggle
+  useEffect(() => {
+    if (selectedId) {
+      const p = patients.find(p => p.id === selectedId);
+      if (p && p.session_state) {
+        setTwinActive(p.session_state.active_handler === 'twin');
+      }
+    }
+  }, [selectedId, patients]);
 
   const selectedPatient = selectedId ? patients.find(p => p.id === selectedId) : null;
   const currentMessages = selectedId ? (conversations[selectedId] || []) : [];
@@ -107,51 +102,74 @@ const Messaging = () => {
 
   const handleSelectPatient = (id) => {
     setSelectedId(id);
-    setTwinActive(true);
     setDoctorMessage('');
   };
 
-  const handleReleaseWhisper = () => {
-    if (!selectedPatient || !selectedPatient.hasPendingWhisper) return;
-    
-    // Convert whisper to an actual message sent by Twin (authorized by Doctor)
-    const newMsg = {
-      id: Date.now(),
-      sender: 'AI Twin',
-      text: selectedPatient.whisperDraft.text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    
-    // Update local state
-    setConversations(prev => ({
-      ...prev,
-      [selectedId]: [...(prev[selectedId] || []), newMsg]
-    }));
-    
-    // Remove the pending whisper from the patient object
-    setPatients(prev => prev.map(p => 
-      p.id === selectedId 
-        ? { ...p, hasPendingWhisper: false, lastMessage: 'Whisper released to patient.' }
-        : p
-    ));
-    
-    // Set Twin back to active running
-    setTwinActive(true);
+  const parseFlags = (flags) => {
+    if (!flags) return [];
+    if (Array.isArray(flags)) return flags;
+    try {
+      return JSON.parse(flags);
+    } catch {
+      return [flags];
+    }
   };
 
-  const handleSendDoctorMessage = () => {
+  // 4. FastAPI Toggles
+  const handleToggleTwin = async () => {
+    const newStatus = !twinActive;
+    setTwinActive(newStatus);
+    try {
+      await fetch('http://127.0.0.1:8000/handover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: selectedId, target_handler: newStatus ? "twin" : "doctor" })
+      });
+      // Locally optimistically update patient state
+      setPatients(prev => prev.map(p => {
+        if(p.id === selectedId) {
+          return {...p, session_state: {...p.session_state, active_handler: newStatus ? "twin" : "doctor", is_emergency: newStatus ? false : p.session_state?.is_emergency}};
+        }
+        return p;
+      }));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSendDoctorMessage = async () => {
     if (!doctorMessage.trim() || !selectedId) return;
-    const newMsg = {
-      id: Date.now(),
-      sender: 'Doctor',
-      text: doctorMessage.trim(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const msgCopy = doctorMessage.trim();
+    setDoctorMessage('');
+    
+    // Add locally for instant UI
+    const optimisticMsg = {
+      message_id: Date.now().toString(),
+      user_id: selectedId,
+      sender: 'doctor',
+      text: msgCopy,
+      timestamp: new Date().toISOString()
     };
     setConversations(prev => ({
       ...prev,
-      [selectedId]: [...(prev[selectedId] || []), newMsg]
+      [selectedId]: [...(prev[selectedId] || []), optimisticMsg]
     }));
-    setDoctorMessage('');
+
+    try {
+      await fetch('http://127.0.0.1:8000/dashboard/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: selectedId, sender: 'doctor', message: msgCopy })
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Helper formatting dates
+  const formatTime = (ts) => {
+    if(!ts) return '';
+    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -228,76 +246,86 @@ const Messaging = () => {
 
         {/* Patient List */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {filteredPatients.map(p => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => handleSelectPatient(p.id)}
-              style={{
-                display: 'flex',
-                width: '100%',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '14px 20px',
-                background: selectedId === p.id ? '#ffffff' : 'transparent',
-                border: 'none',
-                borderLeft: selectedId === p.id ? '3px solid #0ea5e9' : '3px solid transparent',
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'background 0.15s'
-              }}
-              onMouseEnter={e => { if (selectedId !== p.id) e.currentTarget.style.background = '#F1F5F9'; }}
-              onMouseLeave={e => { if (selectedId !== p.id) e.currentTarget.style.background = 'transparent'; }}
-            >
-              {/* Avatar */}
-              <div style={{ position: 'relative', flexShrink: 0 }}>
-                <div style={{
-                  width: '46px', height: '46px',
-                  borderRadius: '50%',
-                  background: p.color,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: '14px'
-                }}>
-                  {p.initials}
-                </div>
-              </div>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#64748b', fontSize: '13px' }}>Loading remote profiles...</div>
+          ) : filteredPatients.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#64748b', fontSize: '13px' }}>No patients found.</div>
+          ) : (
+            filteredPatients.map(p => {
+              const isEmergency = p.session_state?.is_emergency;
+              const hasFlags = parseFlags(p.clinical_flags).length > 0;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => handleSelectPatient(p.id)}
+                  style={{
+                    display: 'flex',
+                    width: '100%',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '14px 20px',
+                    background: selectedId === p.id ? '#ffffff' : 'transparent',
+                    border: 'none',
+                    borderLeft: selectedId === p.id ? '3px solid #0ea5e9' : '3px solid transparent',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={e => { if (selectedId !== p.id) e.currentTarget.style.background = '#F1F5F9'; }}
+                  onMouseLeave={e => { if (selectedId !== p.id) e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {/* Avatar */}
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <div style={{
+                      width: '46px', height: '46px',
+                      borderRadius: '50%',
+                      background: '#10b981', // green default
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: '14px'
+                    }}>
+                      {p.name.substring(0,2).toUpperCase()}
+                    </div>
+                  </div>
 
-              {/* Text */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                  <span style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px' }}>
-                    {p.name}
-                  </span>
-                  <span style={{ fontSize: '11px', fontWeight: 600, color: '#94a3b8', flexShrink: 0, marginLeft: '6px' }}>
-                    {p.time}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                  <span style={{
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    paddingLeft: '7px',
-                    paddingRight: '7px',
-                    paddingTop: '2px',
-                    paddingBottom: '2px',
-                    borderRadius: '999px',
-                    background: SEVERITY_CONFIG[p.stage].bg,
-                    color: SEVERITY_CONFIG[p.stage].color,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    flexShrink: 0
-                  }}>
-                    {SEVERITY_CONFIG[p.stage].label}
-                  </span>
-                  {p.status === 'seen' && <CheckCheck size={12} color="#0ea5e9" />}
-                  {p.status === 'received' && <CheckCheck size={12} color="#94a3b8" />}
-                  {p.status === 'sent' && <Check size={12} color="#94a3b8" />}
-                </div>
-              </div>
-            </button>
-          ))}
+                  {/* Text & Metadata */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                      <span style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '130px' }}>
+                        {p.name}
+                      </span>
+                    </div>
+                    {/* METADATA STORE */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
+                      {p.treatment_cycle && (
+                        <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {p.treatment_cycle}
+                        </span>
+                      )}
+                      
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '2px' }}>
+                        {isEmergency && (
+                          <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', background: '#dc2626', color: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                            <AlertTriangle size={10} /> TAKEOVER FLAG
+                          </span>
+                        )}
+                        {parseFlags(p.clinical_flags).map((flag, idx) => (
+                           <span key={idx} style={{
+                             fontSize: '9px', fontWeight: 700, padding: '2px 6px',
+                             background: '#fef2f2', color: '#ef4444', borderRadius: '4px', textTransform: 'uppercase'
+                           }}>
+                             {flag}
+                           </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -319,179 +347,126 @@ const Messaging = () => {
                 <div style={{
                   width: '40px', height: '40px',
                   borderRadius: '50%',
-                  background: selectedPatient.color,
+                  background: '#10b981',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: '#fff', fontWeight: 700, fontSize: '13px'
                 }}>
-                  {selectedPatient.initials}
+                  {selectedPatient.name.substring(0,2).toUpperCase()}
                 </div>
                 <div>
                   <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', lineHeight: 1.2 }}>
                     {selectedPatient.name}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                    <span style={{
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      paddingLeft: '8px',
-                      paddingRight: '8px',
-                      paddingTop: '2px',
-                      paddingBottom: '2px',
-                      borderRadius: '999px',
-                      background: SEVERITY_CONFIG[selectedPatient.stage].bg,
-                      color: SEVERITY_CONFIG[selectedPatient.stage].color,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em'
-                    }}>
-                      ● {SEVERITY_CONFIG[selectedPatient.stage].label}
-                    </span>
-                    <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>WhatsApp • {twinActive ? 'AI Active' : 'Doctor Override'}</span>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>WhatsApp Channel</span>
+                    <span style={{ fontSize: '11px', color: twinActive ? '#3b82f6' : '#ef4444', fontWeight: 700 }}> • {twinActive ? 'AI Operating' : 'Manual Override'}</span>
                   </div>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {/* Twin Toggle */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: twinActive ? '#eff6ff' : '#fef2f2', border: `1px solid ${twinActive ? '#bfdbfe' : '#fecaca'}`, borderRadius: '10px', padding: '5px 10px', cursor: 'pointer' }}
-                  onClick={() => setTwinActive(v => !v)}
+                {/* End/Archive Button */}
+                <button 
+                  onClick={async () => {
+                    if(window.confirm("Ending this session will move it to the Summaries dashboard and archive the chat. Continue?")) {
+                      await fetch('http://127.0.0.1:8000/handover/resolve', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: selectedId, target_handler: 'twin' })
+                      });
+                      window.location.reload(); // Refresh to clear active list
+                    }
+                  }}
+                  style={{ 
+                    padding: '6px 14px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #e2e8f0', 
+                    background: '#fff', 
+                    color: '#64748b', 
+                    fontSize: '11px', 
+                    fontWeight: 800, 
+                    cursor: 'pointer',
+                    marginRight: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
                 >
-                  <Bot size={15} color={twinActive ? '#3b82f6' : '#94a3b8'} />
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: twinActive ? '#3b82f6' : '#ef4444', letterSpacing: '0.04em', userSelect: 'none' }}>TWIN</span>
+                  <Check size={14} /> RESOLVE CHAT
+                </button>
+                {/* Twin Toggle to FastAPI Handover */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: twinActive ? '#eff6ff' : '#fef2f2', border: `1px solid ${twinActive ? '#bfdbfe' : '#fecaca'}`, borderRadius: '10px', padding: '6px 12px', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
+                  onClick={handleToggleTwin}
+                >
+                  {twinActive ? <Bot size={15} color="#3b82f6" /> : <AlertTriangle size={15} color="#ef4444" />}
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: twinActive ? '#3b82f6' : '#ef4444', letterSpacing: '0.04em', userSelect: 'none' }}>
+                    {twinActive ? 'TWIN ACTIVE' : 'RAG MUTED'}
+                  </span>
                   {/* Toggle pill */}
-                  <div style={{ width: '32px', height: '18px', borderRadius: '999px', background: twinActive ? '#3b82f6' : '#d1d5db', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                  <div style={{ width: '32px', height: '18px', borderRadius: '999px', background: twinActive ? '#3b82f6' : '#d1d5db', position: 'relative', transition: 'background 0.2s', flexShrink: 0, marginLeft: '4px' }}>
                     <div style={{ position: 'absolute', top: '2px', left: twinActive ? '16px' : '2px', width: '14px', height: '14px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
                   </div>
                 </div>
-                <button style={{ padding: '8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}><Phone size={18} /></button>
-                <button style={{ padding: '8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}><MoreVertical size={18} /></button>
               </div>
             </div>
 
             {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px', background: '#F8FAFC' }}>
-              {currentMessages.map(msg => {
-                const isAI = msg.sender === 'AI Twin';
-                const isDoctor = msg.sender === 'Doctor';
-                return (
-                  <div
-                    key={msg.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: (isAI || isDoctor) ? 'flex-end' : 'flex-start',
-                      marginBottom: '20px'
-                    }}
-                  >
-                    <div style={{ maxWidth: '68%' }}>
-                      {/* Sender label */}
-                      <div style={{
-                        fontSize: '10px',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.12em',
-                        marginBottom: '6px',
-                        textAlign: (isAI || isDoctor) ? 'right' : 'left',
-                        color: isDoctor ? '#7c3aed' : isAI ? '#0ea5e9' : '#94a3b8'
-                      }}>
-                        {isDoctor ? 'Dr. Response' : isAI ? 'AI Twin' : 'Patient'}
-                      </div>
-                      {/* Bubble */}
-                      <div style={{
-                        padding: '14px 18px',
-                        borderRadius: (isAI || isDoctor) ? '20px 4px 20px 20px' : '4px 20px 20px 20px',
-                        background: isDoctor ? '#7c3aed' : isAI ? '#0ea5e9' : '#ffffff',
-                        color: (isAI || isDoctor) ? '#ffffff' : '#1e293b',
-                        fontSize: '14px',
-                        lineHeight: '1.65',
-                        fontWeight: 500,
-                        boxShadow: isDoctor ? '0 2px 8px rgba(124,58,237,0.25)' : isAI ? '0 2px 8px rgba(14,165,233,0.25)' : '0 1px 4px rgba(0,0,0,0.07)',
-                        border: (isAI || isDoctor) ? 'none' : '1px solid #e2e8f0'
-                      }}>
-                        {msg.text}
+              {currentMessages.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', fontStyle: 'italic', marginTop: '40px' }}>Loading secured chat history...</div>
+              ) : (
+                currentMessages.map((msg, index) => {
+                  const isTwin = msg.sender === 'twin';
+                  const isDoctor = msg.sender === 'doctor' || msg.sender === 'ops';
+                  
+                  return (
+                    <div
+                      key={msg.message_id || index}
+                      style={{
+                        display: 'flex',
+                        justifyContent: (isTwin || isDoctor) ? 'flex-end' : 'flex-start',
+                        marginBottom: '20px'
+                      }}
+                    >
+                      <div style={{ maxWidth: '68%' }}>
+                        {/* Sender label */}
                         <div style={{
                           fontSize: '10px',
-                          marginTop: '8px',
-                          textAlign: 'right',
-                          color: (isAI || isDoctor) ? 'rgba(255,255,255,0.65)' : '#94a3b8',
-                          fontWeight: 600
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.12em',
+                          marginBottom: '6px',
+                          textAlign: (isTwin || isDoctor) ? 'right' : 'left',
+                          color: isDoctor ? '#7c3aed' : isTwin ? '#0ea5e9' : '#94a3b8'
                         }}>
-                          {msg.time}
+                          {isDoctor ? 'Clinic (Manual)' : isTwin ? 'AI Twin' : 'Patient (WhatsApp)'}
+                        </div>
+                        {/* Bubble */}
+                        <div style={{
+                          padding: '14px 18px',
+                          borderRadius: (isTwin || isDoctor) ? '20px 4px 20px 20px' : '4px 20px 20px 20px',
+                          background: isDoctor ? '#7c3aed' : isTwin ? '#0ea5e9' : '#ffffff',
+                          color: (isTwin || isDoctor) ? '#ffffff' : '#1e293b',
+                          fontSize: '14px',
+                          lineHeight: '1.65',
+                          fontWeight: 500,
+                          boxShadow: isDoctor ? '0 2px 8px rgba(124,58,237,0.25)' : isTwin ? '0 2px 8px rgba(14,165,233,0.25)' : '0 1px 4px rgba(0,0,0,0.07)',
+                          border: (isTwin || isDoctor) ? 'none' : '1px solid #e2e8f0'
+                        }}>
+                          {msg.text}
+                          <div style={{
+                            fontSize: '10px',
+                            marginTop: '8px',
+                            textAlign: 'right',
+                            color: (isTwin || isDoctor) ? 'rgba(255,255,255,0.65)' : '#94a3b8',
+                            fontWeight: 600
+                          }}>
+                            {formatTime(msg.timestamp)}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-              
-              {/* WHISPER DRAFT SECTION */}
-              {selectedPatient?.hasPendingWhisper && (
-                <div className="mt-6 mb-4 relative" style={{ animation: 'fadeIn 0.3s ease-out' }}>
-                  <div style={{
-                    background: '#fef2f2',
-                    border: '2px solid #fecaca',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Bot size={18} color="#ef4444" />
-                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                          Whisper Draft • Wait for Release
-                        </span>
-                      </div>
-                      <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 600 }}>{selectedPatient.whisperDraft.time}</span>
-                    </div>
-                    
-                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#b91c1c', marginBottom: '12px', backgroundColor: '#fee2e2', padding: '8px 12px', borderRadius: '8px' }}>
-                      <strong>Logic:</strong> {selectedPatient.whisperDraft.logic}
-                    </div>
-
-                    <div style={{
-                      fontSize: '15px',
-                      color: '#1e293b',
-                      lineHeight: '1.6',
-                      fontWeight: 500,
-                      backgroundColor: '#ffffff',
-                      padding: '16px',
-                      borderRadius: '12px',
-                      border: '1px solid #fca5a5'
-                    }}>
-                      "{selectedPatient.whisperDraft.text}"
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-                      <button style={{
-                        padding: '10px 20px',
-                        borderRadius: '10px',
-                        border: '1px solid #fca5a5',
-                        background: '#ffffff',
-                        color: '#ef4444',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        cursor: 'pointer'
-                      }}>
-                        Edit Draft
-                      </button>
-                      <button 
-                        onClick={handleReleaseWhisper}
-                        style={{
-                        padding: '10px 24px',
-                        borderRadius: '10px',
-                        border: 'none',
-                        background: '#ef4444',
-                        color: '#ffffff',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        Release to Patient <Send size={14} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })
               )}
             </div>
 
@@ -510,7 +485,7 @@ const Messaging = () => {
                 }}>
                   <Bot size={16} color="#94a3b8" style={{ marginRight: '10px', flexShrink: 0 }} />
                   <span style={{ flex: 1, fontSize: '14px', color: '#94a3b8', fontStyle: 'italic' }}>
-                    AI Twin is managing this conversation...
+                    Digital Twin is active and handling this thread... Disable TWIN to type.
                   </span>
                 </div>
               ) : (
@@ -527,7 +502,7 @@ const Messaging = () => {
                     <span style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', marginRight: '10px', flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Dr</span>
                     <input
                       type="text"
-                      placeholder="Type your response to the patient..."
+                      placeholder="Type your WhatsApp response directly to the patient..."
                       value={doctorMessage}
                       onChange={e => setDoctorMessage(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleSendDoctorMessage()}
@@ -579,7 +554,7 @@ const Messaging = () => {
               Select a conversation
             </div>
             <p style={{ maxWidth: '280px', textAlign: 'center', color: '#64748b', fontSize: '14px', lineHeight: '1.6' }}>
-              Choose a conversation from the list to start messaging
+              Select a patient from the Metadata left rail to view WhatsApp history and Session State.
             </p>
           </div>
         )}

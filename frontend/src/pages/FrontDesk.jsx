@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Search, 
@@ -13,17 +13,30 @@ import {
 } from 'lucide-react';
 import { Badge, Button, Card } from '../components/ui';
 
-const INITIAL_PATIENTS = [
-  { id: 'JAN-2026-002', name: 'deppzz', contact: '1234567898', gender: 'Female', date: '2026-02-06', status: 'ACTIVE' },
-  { id: 'JAN-2026-001', name: 'divya', contact: '12345678905', gender: 'Female', date: '2026-01-27', status: 'ACTIVE' },
-];
-
 const FrontDesk = () => {
   const [activeTab, setActiveTab] = useState('Patients');
-  const [patients, setPatients] = useState(INITIAL_PATIENTS);
+  const [patients, setPatients] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [newPatient, setNewPatient] = useState({ name: '', contact: '', gender: 'Female', dob: '' });
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/patients');
+        if (res.ok) {
+          const data = await res.json();
+          setPatients(data.patients || []);
+        }
+      } catch (err) {
+        console.error("Fetch patients failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPatients();
+  }, []);
 
   const handleAddPatient = (e) => {
     e.preventDefault();
@@ -118,32 +131,44 @@ const FrontDesk = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-color">
-                {patients.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="patient-avatar text-[11px]">{p.name.substring(0, 2).toUpperCase()}</div>
-                        <div>
-                          <p className="font-bold text-text-primary">{p.name}</p>
-                          <p className="text-[12px] text-text-secondary">{p.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{p.contact}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{p.gender}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{p.date}</td>
-                    <td className="px-6 py-4">
-                      <Badge variant={p.status.toLowerCase()}>{p.status}</Badge>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-3 text-text-secondary">
-                        <Eye size={16} className="cursor-pointer hover:text-primary" />
-                        <Edit2 size={16} className="cursor-pointer hover:text-primary" />
-                        <Trash2 size={16} className="cursor-pointer hover:text-red-500" />
-                      </div>
-                    </td>
+                {loading ? (
+                   <tr>
+                     <td colSpan="6" className="px-6 py-10 text-center text-text-secondary text-sm">Loading clinic records...</td>
+                   </tr>
+                ) : patients.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-10 text-center text-text-secondary text-sm">No patients found.</td>
                   </tr>
-                ))}
+                ) : patients.map((p) => {
+                  const statusLabel = p.session_state?.is_emergency ? 'CRITICAL' : 'ACTIVE';
+                  const statusVariant = p.session_state?.is_emergency ? 'critical' : 'success';
+                  return (
+                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="patient-avatar text-[11px]">{p.name.substring(0, 2).toUpperCase()}</div>
+                          <div>
+                            <p className="font-bold text-text-primary">{p.name}</p>
+                            <p className="text-[10px] text-text-secondary">{p.id.substring(0, 13)}...</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-text-secondary">{p.remote_jid || 'No WhatsApp'}</td>
+                      <td className="px-6 py-4 text-sm text-text-secondary">{p.treatment_cycle || 'General Fertility'}</td>
+                      <td className="px-6 py-4 text-sm text-text-secondary">{new Date(p.created_at).toLocaleDateString()}</td>
+                      <td className="px-6 py-4">
+                        <Badge variant={statusVariant}>{statusLabel}</Badge>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-3 text-text-secondary">
+                          <Eye size={16} className="cursor-pointer hover:text-primary" />
+                          <Edit2 size={16} className="cursor-pointer hover:text-primary" />
+                          <Trash2 size={16} className="cursor-pointer hover:text-red-500" />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </Card>

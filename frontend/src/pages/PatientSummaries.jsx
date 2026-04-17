@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FileText, 
   CheckCircle2, 
@@ -16,42 +16,9 @@ import {
 } from 'lucide-react';
 import { Badge, Button, Card } from '../components/ui';
 
-const SUMMARY_DATA = [
-  { 
-    id: 'JAN-2026-010', 
-    name: 'Aasha', 
-    stage: 'critical', 
-    summary: 'Patient reports persistent high-grade fever for 4 days with dry cough. AI Twin recommended paracetamol every 6 hours and increased hydration. Suggested clinic visit if temperature exceeds 103°F.',
-    time: '4 min ago',
-    status: 'Pending'
-  },
-  { 
-    id: 'JAN-2026-011', 
-    name: 'Ananya S.', 
-    stage: 'critical', 
-    summary: 'Patient reports chest pain radiating to left arm since 09:45. SpO2 at 94%. Possible cardiac event. Recommend immediate ECG and continuous vital monitoring. Escalate to Dr. Review if pain persists more than 5 mins.',
-    time: 'Just now',
-    status: 'CRITICAL'
-  },
-  { 
-    id: 'JAN-2026-012', 
-    name: 'Shreya Goshal', 
-    stage: 'normal', 
-    summary: 'Follow-up regarding post-surgical dressing. Patient reports minor itching but no redness or discharge. AI Twin advised keeping dry.',
-    time: '12 min ago',
-    status: 'Pending'
-  },
-  { 
-    id: 'JAN-2026-013', 
-    name: 'Arya', 
-    stage: 'safe', 
-    summary: 'Medication refill request for hypertension. AI Twin verified the last dosage and current blood pressure reading (120/80).',
-    time: '25 min ago',
-    status: 'Approved'
-  },
-];
+// Summarized AI logic moved to dynamic mapping
 
-const ApprovalModal = ({ patient, onClose, onApprove }) => (
+const ApprovalModal = ({ patient, onClose, onApprove, summarizing }) => (
   <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] animate-in fade-in duration-300">
     <div className="w-[600px] bg-white rounded-[32px] shadow-2xl p-10 animate-in zoom-in-95 duration-300 relative">
       <button 
@@ -64,7 +31,7 @@ const ApprovalModal = ({ patient, onClose, onApprove }) => (
       <div className="mb-8">
         <h2 className="text-3xl font-black text-[#0F172A] tracking-tight mb-2">{patient.name}</h2>
         <div className="flex items-center gap-4">
-          <p className="text-[12px] font-bold text-slate-400 uppercase tracking-[0.2em]">PATIENT ID: {patient.id}</p>
+          <p className="text-[12px] font-bold text-slate-400 uppercase tracking-[0.2em]">PATIENT ID: {patient.id.substring(0,8)}</p>
           <Badge variant={patient.stage === 'critical' ? 'critical' : 'moderate'} className="text-[10px] font-black tracking-widest px-3 py-1 uppercase">
             {patient.stage.toUpperCase()}
           </Badge>
@@ -72,10 +39,16 @@ const ApprovalModal = ({ patient, onClose, onApprove }) => (
       </div>
 
       <div className="bg-[#F0F7FF] border border-[#E1EEFF] rounded-[24px] p-8 mb-8">
-        <div className="mb-4">
-          <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.15em]">AI Summary Note</span>
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.15em]">AI Clinical Summary</span>
+          {summarizing && (
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <span className="text-[10px] font-bold text-primary animate-pulse">GENERATING...</span>
+            </div>
+          )}
         </div>
-        <p className="text-[16px] leading-relaxed text-[#1E293B] font-medium italic">
+        <p className={`text-[16px] leading-relaxed text-[#1E293B] font-medium italic ${summarizing ? 'opacity-50' : ''}`}>
           "{patient.summary}"
         </p>
       </div>
@@ -84,13 +57,14 @@ const ApprovalModal = ({ patient, onClose, onApprove }) => (
         <Button 
           variant="success" 
           icon={CheckCircle2} 
-          className="w-full h-16 text-[16px] font-bold rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-emerald-500/20"
+          disabled={summarizing}
+          className={`w-full h-16 text-[16px] font-bold rounded-2xl transition-all active:scale-[0.98] shadow-lg ${summarizing ? 'bg-slate-100 text-slate-400 shadow-none cursor-not-allowed' : 'shadow-emerald-500/20'}`}
           onClick={() => {
             onApprove();
             onClose();
           }}
         >
-          Approve & Send to Patient
+          {summarizing ? 'Analyzing Transcripts...' : 'Approve & Send to Patient'}
         </Button>
       </div>
     </div>
@@ -100,19 +74,56 @@ const ApprovalModal = ({ patient, onClose, onApprove }) => (
 const PatientSummaries = () => {
   const [activeFilter, setActiveFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [toast, setToast] = useState(null);
 
-  const filteredPatients = SUMMARY_DATA.filter(p => {
-    const stageMap = { 'red': 'critical', 'yellow': 'normal' };
-    const matchesFilter = activeFilter === 'ALL' || p.stage === stageMap[activeFilter.toLowerCase()] || (activeFilter === 'YELLOW' && p.stage === 'normal');
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         p.id.toLowerCase().includes(searchQuery.toLowerCase());
+  const [summarizing, setSummarizing] = useState(false);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/patients');
+        if (res.ok) {
+          const data = await res.json();
+          setPatients(data.patients || []);
+        }
+      } catch (err) {
+        console.error("Fetch patients failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPatients();
+  }, []);
+
+  const filteredPatients = patients.filter(p => {
+    // ONLY show summaries for people whose chat has "Ended" (is_resolved = true)
+    const isResolved = p.session_state?.is_resolved;
+    if (!isResolved) return false;
+
+    const isCritical = p.session_state?.is_emergency;
+    const matchesFilter = activeFilter === 'ALL' || (activeFilter === 'RED' && isCritical) || (activeFilter === 'YELLOW' && !isCritical);
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
-  const handleSelect = (patient) => {
-    setSelectedPatient(patient);
+  const handleSelect = async (patient) => {
+    setSummarizing(true);
+    setSelectedPatient({ ...patient, summary: 'AI is analyzing latest transcripts...', stage: patient.session_state?.is_emergency ? 'critical' : 'normal' });
+    
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/patients/${patient.id}/summary`);
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedPatient(prev => ({ ...prev, summary: data.summary }));
+      }
+    } catch (e) {
+      console.error("Summary fetch failed", e);
+    } finally {
+      setSummarizing(false);
+    }
   };
 
   const handleApprove = () => {
@@ -171,46 +182,62 @@ const PatientSummaries = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4 pb-10">
-          {filteredPatients.map((p) => (
-            <div 
-              key={p.id}
-              onClick={() => handleSelect(p)}
-              className="p-6 bg-white border border-slate-200 rounded-3xl transition-all cursor-pointer hover:border-primary hover:shadow-xl hover:-translate-y-1 group flex items-center gap-8 active:scale-[0.99]"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 group-hover:bg-primary/5 transition-colors">
-                <User size={28} className="text-slate-400 group-hover:text-primary transition-colors" />
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex justify-between items-center mb-1">
-                  <h4 className="font-black text-lg text-[#0F172A] tracking-tight">{p.name}</h4>
-                  <Badge 
-                    variant={p.stage === 'critical' ? 'critical' : 'moderate'} 
-                    className="text-[10px] py-1 px-3 uppercase tracking-widest font-black"
-                  >
-                    {p.stage.toUpperCase()}
-                  </Badge>
+          {loading ? (
+            <div className="text-center py-20 text-slate-400 font-bold uppercase tracking-widest text-xs">Syncing with Health Vault...</div>
+          ) : filteredPatients.map((p) => {
+            const isEmergency = p.session_state?.is_emergency;
+            const stageLabel = isEmergency ? 'CRITICAL' : 'NORMAL';
+            const displaySummary = isEmergency 
+              ? `Emergency Gate Triggered. Patient reported concerning symptoms in ${p.treatment_cycle || 'current cycle'}.`
+              : `Standard Twin monitoring for ${p.treatment_cycle || 'General Fertility'}. Everything looks stable.`;
+            
+            return (
+              <div 
+                key={p.id}
+                onClick={() => handleSelect(p)}
+                className="p-6 bg-white border border-slate-200 rounded-3xl transition-all cursor-pointer hover:border-primary hover:shadow-xl hover:-translate-y-1 group flex items-center gap-8 active:scale-[0.99]"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 group-hover:bg-primary/5 transition-colors">
+                  <User size={28} className="text-slate-400 group-hover:text-primary transition-colors" />
                 </div>
-                <div className="flex items-center gap-4 mb-3">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">ID: {p.id}</span>
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
-                    <Clock size={12} />
-                    <span>{p.time}</span>
+                
+                <div className="flex-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <h4 className="font-black text-lg text-[#0F172A] tracking-tight">{p.name}</h4>
+                    <Badge 
+                      variant={isEmergency ? 'critical' : 'moderate'} 
+                      className="text-[10px] py-1 px-3 uppercase tracking-widest font-black"
+                    >
+                      {stageLabel}
+                    </Badge>
                   </div>
+                  <div className="flex items-center gap-4 mb-3">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">ID: {p.id.substring(0,8)}</span>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
+                      <Clock size={12} />
+                      <span>{new Date(p.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  <p className="text-[14px] text-slate-600 line-clamp-1 italic font-medium">"{displaySummary}"</p>
                 </div>
-                <p className="text-[14px] text-slate-600 line-clamp-1 italic font-medium">"{p.summary}"</p>
-              </div>
 
-              <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-slate-50 group-hover:bg-primary group-hover:text-white transition-all">
-                <ChevronRight size={24} />
+                <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-slate-50 group-hover:bg-primary group-hover:text-white transition-all">
+                  <ChevronRight size={24} />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
-          {filteredPatients.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
-              <Search size={48} className="text-slate-300 mb-4" />
-              <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No patients found</p>
+          {!loading && filteredPatients.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-24 bg-slate-50/50 rounded-[40px] border-2 border-dashed border-slate-200">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
+                <Clock size={32} className="text-slate-300" />
+              </div>
+              <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px] mb-2">Queue is Clear</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">No Historical Summaries</h3>
+              <p className="text-slate-400 text-sm max-w-[320px] text-center font-medium leading-relaxed">
+                Patient summaries are generated automatically once a live chat session is **closed** by the clinical team.
+              </p>
             </div>
           )}
         </div>
@@ -222,6 +249,7 @@ const PatientSummaries = () => {
           patient={selectedPatient} 
           onClose={() => setSelectedPatient(null)} 
           onApprove={handleApprove}
+          summarizing={summarizing}
         />
       )}
     </div>

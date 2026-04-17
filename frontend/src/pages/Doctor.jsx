@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ReactFlow, 
   Background, 
@@ -83,7 +83,28 @@ const SOP_CONTENT = {
 const Doctor = () => {
   const [activeTab, setActiveTab] = useState('OHSS Protocol');
   const [sopText, setSopText] = useState(SOP_CONTENT['OHSS Protocol']);
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/patients');
+        if (res.ok) {
+          const data = await res.json();
+          setPatients(data.patients || []);
+        }
+      } catch (err) {
+        console.error("Fetch patients failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPatients();
+  }, []);
+
+  const highRiskPatients = patients.filter(p => p.session_state?.is_emergency);
 
   const handleSave = () => {
     setSaved(true);
@@ -122,33 +143,34 @@ const Doctor = () => {
       {/* Top Right - High-Risk Feed */}
       <Card 
         title="High-Risk & Escalated Cases" 
-        action={<Badge variant="critical">5 Active</Badge>}
+        action={<Badge variant="critical">{highRiskPatients.length} Active</Badge>}
         className="h-[450px] overflow-y-auto custom-scrollbar"
       >
         <div className="space-y-4">
-          {[
-            { name: 'Aasha', alert: 'OHSS Risk', source: 'Decreased urination & severe bloating', time: '5m', red: true },
-            { name: 'Manual Override', alert: 'Emergency at Front Desk', source: 'Triggered by Front Desk', time: '4m', red: true },
-            { name: 'Ananya S.', alert: 'Post-Transfer Spotting', source: 'Bleeding 6 days post-transfer', time: '12m' },
-            { name: 'Meghna P.', alert: 'High Estradiol', source: 'E2 > 4000 pg/mL recorded', time: '18m', red: true },
-          ].map((item, i) => (
-            <div key={i} className={`p-4 rounded-xl border flex items-center justify-between hover:shadow-md transition-all ${item.red ? 'bg-red-50 border-red-200' : 'bg-white border-border-color'}`}>
-              <div className="flex gap-4 items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.red ? 'bg-red-500 text-white' : 'bg-amber-100 text-amber-600'}`}>
-                  <AlertCircle size={20} />
+          {loading ? (
+            <p className="text-center text-text-secondary text-sm mt-10">Searching for anomalies...</p>
+          ) : highRiskPatients.length === 0 ? (
+            <p className="text-center text-text-secondary text-sm mt-10">No critical escalations at this time.</p>
+          ) : (
+            highRiskPatients.map((item, i) => (
+              <div key={i} className="p-4 rounded-xl border flex items-center justify-between hover:shadow-md transition-all bg-red-50 border-red-200">
+                <div className="flex gap-4 items-center">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-500 text-white">
+                    <AlertCircle size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-text-primary">{item.name}</h4>
+                    <p className="text-[12px] font-medium text-red-600">{item.treatment_cycle || 'Fertility Emergency'}</p>
+                    <p className="text-[11px] text-text-secondary mt-0.5 italic">Similarity Gate Triggered (&gt;0.85)</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-sm text-text-primary">{item.name}</h4>
-                  <p className={`text-[12px] font-medium ${item.red ? 'text-red-600' : 'text-text-secondary'}`}>{item.alert}</p>
-                  <p className="text-[11px] text-text-secondary mt-0.5 italic">{item.source}</p>
+                <div className="flex flex-col items-end gap-2">
+                  <span className="text-[10px] font-bold text-text-secondary">Just now</span>
+                  <button className="text-[12px] font-bold underline text-red-600">Review Case</button>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <span className="text-[10px] font-bold text-text-secondary">{item.time} ago</span>
-                <button className={`text-[12px] font-bold underline ${item.red ? 'text-red-600' : 'text-primary'}`}>Review Case</button>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </Card>
 
