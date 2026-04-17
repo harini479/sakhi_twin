@@ -22,8 +22,14 @@ const SEVERITY_CONFIG = {
 const Messaging = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [twinActive, setTwinActive] = useState(true);
-  const [doctorMessage, setDoctorMessage] = useState('');
+  const [viewRole, setViewRole] = useState(localStorage.getItem('janma_role') || 'doctor'); 
+  const [humanMessage, setHumanMessage] = useState('');
+
+  useEffect(() => {
+    const syncRole = () => setViewRole(localStorage.getItem('janma_role') || 'doctor');
+    window.addEventListener('roleChange', syncRole);
+    return () => window.removeEventListener('roleChange', syncRole);
+  }, []);
   
   const [patients, setPatients] = useState([]);
   const [conversations, setConversations] = useState({});
@@ -83,17 +89,9 @@ const Messaging = () => {
     };
   }, [selectedId]);
 
-  // Sync session state for toggle
-  useEffect(() => {
-    if (selectedId) {
-      const p = patients.find(p => p.id === selectedId);
-      if (p && p.session_state) {
-        setTwinActive(p.session_state.active_handler === 'twin');
-      }
-    }
-  }, [selectedId, patients]);
 
   const selectedPatient = selectedId ? patients.find(p => p.id === selectedId) : null;
+  const activeH = selectedPatient?.session_state?.active_handler || 'twin';
   const currentMessages = selectedId ? (conversations[selectedId] || []) : [];
 
   const filteredPatients = patients.filter(p => 
@@ -102,7 +100,7 @@ const Messaging = () => {
 
   const handleSelectPatient = (id) => {
     setSelectedId(id);
-    setDoctorMessage('');
+    setHumanMessage('');
   };
 
   const parseFlags = (flags) => {
@@ -115,38 +113,43 @@ const Messaging = () => {
     }
   };
 
-  // 4. FastAPI Toggles
-  const handleToggleTwin = async () => {
-    const newStatus = !twinActive;
-    setTwinActive(newStatus);
+  // 4. Role and Escalation Actions
+  const handleEscalateToDoctor = async () => {
     try {
       await fetch('http://127.0.0.1:8000/handover', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: selectedId, target_handler: newStatus ? "twin" : "doctor" })
+        body: JSON.stringify({ user_id: selectedId, target_handler: 'doctor' })
       });
-      // Locally optimistically update patient state
-      setPatients(prev => prev.map(p => {
-        if(p.id === selectedId) {
-          return {...p, session_state: {...p.session_state, active_handler: newStatus ? "twin" : "doctor", is_emergency: newStatus ? false : p.session_state?.is_emergency}};
-        }
-        return p;
-      }));
+      setPatients(prev => prev.map(p => p.id === selectedId ? {...p, session_state: {...p.session_state, active_handler: 'doctor', is_emergency: true}} : p));
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleSendDoctorMessage = async () => {
-    if (!doctorMessage.trim() || !selectedId) return;
-    const msgCopy = doctorMessage.trim();
-    setDoctorMessage('');
+  const handleResumeTwin = async () => {
+    try {
+      await fetch('http://127.0.0.1:8000/handover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: selectedId, target_handler: 'twin' })
+      });
+      setPatients(prev => prev.map(p => p.id === selectedId ? {...p, session_state: {...p.session_state, active_handler: 'twin', is_emergency: false}} : p));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!humanMessage.trim() || !selectedId) return;
+    const msgCopy = humanMessage.trim();
+    setHumanMessage('');
     
     // Add locally for instant UI
     const optimisticMsg = {
       message_id: Date.now().toString(),
       user_id: selectedId,
-      sender: 'doctor',
+      sender: viewRole,
       text: msgCopy,
       timestamp: new Date().toISOString()
     };
@@ -159,7 +162,7 @@ const Messaging = () => {
       await fetch('http://127.0.0.1:8000/dashboard/reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: selectedId, sender: 'doctor', message: msgCopy })
+        body: JSON.stringify({ user_id: selectedId, sender: viewRole, message: msgCopy })
       });
     } catch (e) {
       console.error(e);
@@ -359,7 +362,9 @@ const Messaging = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
                     <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>WhatsApp Channel</span>
-                    <span style={{ fontSize: '11px', color: twinActive ? '#3b82f6' : '#ef4444', fontWeight: 700 }}> • {twinActive ? 'AI Operating' : 'Manual Override'}</span>
+                    <span style={{ fontSize: '11px', color: activeH === 'twin' ? '#3b82f6' : activeH === 'doctor' ? '#ef4444' : '#d97706', fontWeight: 700 }}> 
+                      • {activeH === 'twin' ? 'AI Operating' : activeH === 'doctor' ? 'Doctor Override (RED)' : 'Nurse Override (YELLOW)'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -393,37 +398,45 @@ const Messaging = () => {
                 >
                   <Check size={14} /> RESOLVE CHAT
                 </button>
-                {/* Twin Toggle to FastAPI Handover */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: twinActive ? '#eff6ff' : '#fef2f2', border: `1px solid ${twinActive ? '#bfdbfe' : '#fecaca'}`, borderRadius: '10px', padding: '6px 12px', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
-                  onClick={handleToggleTwin}
-                >
-                  {twinActive ? <Bot size={15} color="#3b82f6" /> : <AlertTriangle size={15} color="#ef4444" />}
-                  <span style={{ fontSize: '11px', fontWeight: 800, color: twinActive ? '#3b82f6' : '#ef4444', letterSpacing: '0.04em', userSelect: 'none' }}>
-                    {twinActive ? 'TWIN ACTIVE' : 'RAG MUTED'}
-                  </span>
-                  {/* Toggle pill */}
-                  <div style={{ width: '32px', height: '18px', borderRadius: '999px', background: twinActive ? '#3b82f6' : '#d1d5db', position: 'relative', transition: 'background 0.2s', flexShrink: 0, marginLeft: '4px' }}>
-                    <div style={{ position: 'absolute', top: '2px', left: twinActive ? '16px' : '2px', width: '14px', height: '14px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
-                  </div>
-                </div>
+                
+                {/* Logic for Escalate vs Resume based on Role and State */}
+                {activeH === 'nurse' && viewRole === 'nurse' && (
+                  <button 
+                    onClick={handleEscalateToDoctor}
+                    style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <AlertTriangle size={14} /> ESCALATE TO DOCTOR
+                  </button>
+                )}
+                
+                {activeH !== 'twin' && (
+                  <button 
+                    onClick={handleResumeTwin}
+                    style={{ background: '#eff6ff', border: '1px solid #bfdbfe', color: '#3b82f6', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <Bot size={14} /> RESUME AI TWIN
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px', background: '#F8FAFC' }}>
               {currentMessages.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', fontStyle: 'italic', marginTop: '40px' }}>Loading secured chat history...</div>
+                <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', fontStyle: 'italic', marginTop: '40px' }}>
+                  Start of conversation. Wait for patient to text or initiate contact below.
+                </div>
               ) : (
                 currentMessages.map((msg, index) => {
                   const isTwin = msg.sender === 'twin';
-                  const isDoctor = msg.sender === 'doctor' || msg.sender === 'ops';
+                  const isClinic = msg.sender === 'doctor' || msg.sender === 'nurse' || msg.sender === 'ops';
                   
                   return (
                     <div
                       key={msg.message_id || index}
                       style={{
                         display: 'flex',
-                        justifyContent: (isTwin || isDoctor) ? 'flex-end' : 'flex-start',
+                        justifyContent: (isTwin || isClinic) ? 'flex-end' : 'flex-start',
                         marginBottom: '20px'
                       }}
                     >
@@ -435,29 +448,29 @@ const Messaging = () => {
                           textTransform: 'uppercase',
                           letterSpacing: '0.12em',
                           marginBottom: '6px',
-                          textAlign: (isTwin || isDoctor) ? 'right' : 'left',
-                          color: isDoctor ? '#7c3aed' : isTwin ? '#0ea5e9' : '#94a3b8'
+                          textAlign: (isTwin || isClinic) ? 'right' : 'left',
+                          color: isClinic ? '#7c3aed' : isTwin ? '#0ea5e9' : '#94a3b8'
                         }}>
-                          {isDoctor ? 'Clinic (Manual)' : isTwin ? 'AI Twin' : 'Patient (WhatsApp)'}
+                          {msg.sender === 'doctor' ? 'Dr. Sharma (Manual)' : msg.sender === 'nurse' ? 'Nurse (Manual)' : isTwin ? 'AI Twin' : 'Patient (WhatsApp)'}
                         </div>
                         {/* Bubble */}
                         <div style={{
                           padding: '14px 18px',
-                          borderRadius: (isTwin || isDoctor) ? '20px 4px 20px 20px' : '4px 20px 20px 20px',
-                          background: isDoctor ? '#7c3aed' : isTwin ? '#0ea5e9' : '#ffffff',
-                          color: (isTwin || isDoctor) ? '#ffffff' : '#1e293b',
+                          borderRadius: (isTwin || isClinic) ? '20px 4px 20px 20px' : '4px 20px 20px 20px',
+                          background: isClinic ? '#7c3aed' : isTwin ? '#0ea5e9' : '#ffffff',
+                          color: (isTwin || isClinic) ? '#ffffff' : '#1e293b',
                           fontSize: '14px',
                           lineHeight: '1.65',
                           fontWeight: 500,
-                          boxShadow: isDoctor ? '0 2px 8px rgba(124,58,237,0.25)' : isTwin ? '0 2px 8px rgba(14,165,233,0.25)' : '0 1px 4px rgba(0,0,0,0.07)',
-                          border: (isTwin || isDoctor) ? 'none' : '1px solid #e2e8f0'
+                          boxShadow: isClinic ? '0 2px 8px rgba(124,58,237,0.25)' : isTwin ? '0 2px 8px rgba(14,165,233,0.25)' : '0 1px 4px rgba(0,0,0,0.07)',
+                          border: (isTwin || isClinic) ? 'none' : '1px solid #e2e8f0'
                         }}>
                           {msg.text}
                           <div style={{
                             fontSize: '10px',
                             marginTop: '8px',
                             textAlign: 'right',
-                            color: (isTwin || isDoctor) ? 'rgba(255,255,255,0.65)' : '#94a3b8',
+                            color: (isTwin || isClinic) ? 'rgba(255,255,255,0.65)' : '#94a3b8',
                             fontWeight: 600
                           }}>
                             {formatTime(msg.timestamp)}
@@ -472,7 +485,7 @@ const Messaging = () => {
 
             {/* Input Bar */}
             <div style={{ padding: '14px 24px', borderTop: '1px solid #e2e8f0', background: '#fff', flexShrink: 0 }}>
-              {twinActive ? (
+              {activeH === 'twin' ? (
                 /* Twin is ON — locked read-only bar */
                 <div style={{
                   display: 'flex', alignItems: 'center',
@@ -485,11 +498,26 @@ const Messaging = () => {
                 }}>
                   <Bot size={16} color="#94a3b8" style={{ marginRight: '10px', flexShrink: 0 }} />
                   <span style={{ flex: 1, fontSize: '14px', color: '#94a3b8', fontStyle: 'italic' }}>
-                    Digital Twin is active and handling this thread... Disable TWIN to type.
+                    Digital Twin is active and handling this thread. Input locked.
+                  </span>
+                </div>
+              ) : activeH === 'doctor' && viewRole === 'nurse' ? (
+                /* Locked for Nurse because Doctor is handling */
+                <div style={{
+                  display: 'flex', alignItems: 'center',
+                  background: '#F1F5F9',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  opacity: 0.8,
+                  cursor: 'not-allowed'
+                }}>
+                  <span style={{ flex: 1, fontSize: '14px', color: '#64748b', fontStyle: 'italic', fontWeight: 500 }}>
+                    Doctor has taken over this chat. Input locked for Nurse.
                   </span>
                 </div>
               ) : (
-                /* Twin is OFF — doctor can type */
+                /* Active typing logic */
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{
                     display: 'flex', alignItems: 'center', flex: 1,
@@ -499,13 +527,13 @@ const Messaging = () => {
                     padding: '10px 16px',
                     boxShadow: '0 0 0 3px rgba(124,58,237,0.08)'
                   }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', marginRight: '10px', flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Dr</span>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', marginRight: '10px', flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{viewRole === 'doctor' ? 'DR' : 'NURSE'}</span>
                     <input
                       type="text"
-                      placeholder="Type your WhatsApp response directly to the patient..."
-                      value={doctorMessage}
-                      onChange={e => setDoctorMessage(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handleSendDoctorMessage()}
+                      placeholder={`Type your WhatsApp response directly to the patient as ${viewRole}...`}
+                      value={humanMessage}
+                      onChange={e => setHumanMessage(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
                       style={{
                         flex: 1,
                         border: 'none',
@@ -519,13 +547,13 @@ const Messaging = () => {
                     />
                   </div>
                   <button
-                    onClick={handleSendDoctorMessage}
+                    onClick={handleSendMessage}
                     style={{
                       width: '44px', height: '44px',
                       borderRadius: '12px',
-                      background: doctorMessage.trim() ? '#7c3aed' : '#e2e8f0',
+                      background: humanMessage.trim() ? '#7c3aed' : '#e2e8f0',
                       border: 'none',
-                      cursor: doctorMessage.trim() ? 'pointer' : 'default',
+                      cursor: humanMessage.trim() ? 'pointer' : 'default',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       color: '#fff',
                       transition: 'background 0.2s',

@@ -62,6 +62,13 @@ const Sidebar = () => {
 };
 
 const TopBar = () => {
+  const [globalRole, setGlobalRole] = React.useState(localStorage.getItem('janma_role') || 'doctor');
+
+  React.useEffect(() => {
+    localStorage.setItem('janma_role', globalRole);
+    window.dispatchEvent(new Event('roleChange'));
+  }, [globalRole]);
+
   return (
     <header className="h-[56px] bg-white border-b border-border-color flex items-center justify-between px-6 sticky top-0 z-10">
       <div className="relative w-[400px]">
@@ -73,13 +80,27 @@ const TopBar = () => {
         />
       </div>
 
-      <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors">
-        <div className="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center text-xs font-bold">ST</div>
-        <div className="text-left">
-          <p className="text-[13px] font-bold text-text-primary leading-none">Clinical Staff</p>
-          <p className="text-[11px] text-text-secondary font-medium mt-0.5">JanmaSethu Terminal</p>
+      <div className="flex items-center gap-4">
+        {/* Global Role Switcher for Testing */}
+        <select 
+          value={globalRole} 
+          onChange={(e) => setGlobalRole(e.target.value)}
+          className="bg-slate-50 border border-slate-200 text-[12px] font-bold text-slate-700 rounded-md px-3 py-1.5 outline-none cursor-pointer"
+        >
+          <option value="doctor">Role: DOCTOR</option>
+          <option value="nurse">Role: NURSE</option>
+        </select>
+        
+        <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors border-l pl-4">
+          <div className="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center text-xs font-bold">
+            {globalRole === 'doctor' ? 'DR' : 'NR'}
+          </div>
+          <div className="text-left">
+            <p className="text-[13px] font-bold text-text-primary leading-none uppercase">{globalRole === 'doctor' ? 'Clinical Staff' : 'Nursing Staff'}</p>
+            <p className="text-[11px] text-text-secondary font-medium mt-0.5">JanmaSethu Terminal</p>
+          </div>
+          <ChevronDown size={14} className="text-text-secondary ml-1" />
         </div>
-        <ChevronDown size={14} className="text-text-secondary ml-1" />
       </div>
     </header>
   );

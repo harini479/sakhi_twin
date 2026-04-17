@@ -99,8 +99,8 @@ const PatientSummaries = () => {
   }, []);
 
   const filteredPatients = patients.filter(p => {
-    // ONLY show summaries for people whose chat has "Ended" (is_resolved = true)
-    const isResolved = p.session_state?.is_resolved;
+    // ONLY show summaries for people whose chat has "Ended" (resolved)
+    const isResolved = p.session_state?.current_logic_branch === 'resolved';
     if (!isResolved) return false;
 
     const isCritical = p.session_state?.is_emergency;

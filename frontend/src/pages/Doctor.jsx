@@ -104,7 +104,7 @@ const Doctor = () => {
     fetchPatients();
   }, []);
 
-  const highRiskPatients = patients.filter(p => p.session_state?.is_emergency);
+  const escalatedPatients = patients.filter(p => p.session_state?.active_handler === 'nurse' || p.session_state?.active_handler === 'doctor' || p.session_state?.is_emergency);
 
   const handleSave = () => {
     setSaved(true);
@@ -142,34 +142,41 @@ const Doctor = () => {
 
       {/* Top Right - High-Risk Feed */}
       <Card 
-        title="High-Risk & Escalated Cases" 
-        action={<Badge variant="critical">{highRiskPatients.length} Active</Badge>}
+        title="Escalations & Alerts" 
+        action={<Badge variant="critical">{escalatedPatients.length} Active</Badge>}
         className="h-[450px] overflow-y-auto custom-scrollbar"
       >
         <div className="space-y-4">
           {loading ? (
             <p className="text-center text-text-secondary text-sm mt-10">Searching for anomalies...</p>
-          ) : highRiskPatients.length === 0 ? (
-            <p className="text-center text-text-secondary text-sm mt-10">No critical escalations at this time.</p>
+          ) : escalatedPatients.length === 0 ? (
+            <p className="text-center text-text-secondary text-sm mt-10">No escalations at this time. Twin is resolving all chats.</p>
           ) : (
-            highRiskPatients.map((item, i) => (
-              <div key={i} className="p-4 rounded-xl border flex items-center justify-between hover:shadow-md transition-all bg-red-50 border-red-200">
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-500 text-white">
-                    <AlertCircle size={20} />
+            escalatedPatients.map((item, i) => {
+              const isRed = item.session_state?.is_emergency;
+              return (
+                <div key={item.id} className={`p-4 rounded-xl border flex items-center justify-between hover:shadow-md transition-all ${isRed ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+                  <div className="flex gap-4 items-center">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${isRed ? 'bg-red-500' : 'bg-amber-500'}`}>
+                      <AlertCircle size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-text-primary">{item.name}</h4>
+                      <p className={`text-[12px] font-bold ${isRed ? 'text-red-700' : 'text-amber-700'}`}>
+                        {isRed ? 'RED ZONE: Medical Emergency' : 'YELLOW ZONE: Nurse Escalation'}
+                      </p>
+                      <p className="text-[11px] text-text-secondary mt-0.5 italic">
+                        {isRed ? 'Similarity Gate Triggered (>0.85)' : 'AI lacked confidence or rule match. Bypassed to human.'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-text-primary">{item.name}</h4>
-                    <p className="text-[12px] font-medium text-red-600">{item.treatment_cycle || 'Fertility Emergency'}</p>
-                    <p className="text-[11px] text-text-secondary mt-0.5 italic">Similarity Gate Triggered (&gt;0.85)</p>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="text-[10px] font-bold text-text-secondary">Action Req</span>
+                    <button className={`text-[12px] font-bold underline ${isRed ? 'text-red-600' : 'text-amber-600'}`}>Review Chat</button>
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className="text-[10px] font-bold text-text-secondary">Just now</span>
-                  <button className="text-[12px] font-bold underline text-red-600">Review Case</button>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </Card>

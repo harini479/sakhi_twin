@@ -118,12 +118,12 @@ async def patient_chat(req: ChatRequest):
         })
 
         # C. MUTE LOGIC (Digital Twin Architecture)
-        # If the active handler is 'human', bypass the AI auto-response entirely.
-        if session_state.get("active_handler") == "human":
+        # If the active handler is NOT 'twin', bypass the AI auto-response entirely.
+        if session_state.get("active_handler") != "twin":
             return {
                 "status": "bypassed", 
-                "active_handler": "human", 
-                "message": "AI auto-response bypassed. Message saved for human expert."
+                "active_handler": session_state.get("active_handler"), 
+                "message": "AI auto-response bypassed. Message saved for human clinical staff."
             }
             
         # Generate embedding early for both Emergency Gate and Knowledge Hub
@@ -166,14 +166,14 @@ async def patient_chat(req: ChatRequest):
             )
             recap_brief = recap_resp.choices[0].message.content.strip()
             
-            # Trigger Human Takeover Flag
+            # Trigger Human Takeover Flag FOR DOCTOR
             await async_supabase_update(
                 "session_states", 
                 match=f"user_id=eq.{req.user_id}", 
-                data={"active_handler": "human", "is_emergency": True}
+                data={"active_handler": "doctor", "is_emergency": True}
             )
             
-            takeover_message = "Your symptoms require expert review. I have escalated this to the clinical team."
+            takeover_message = "Your symptoms require expert review. I have escalated this directly to the clinical doctor."
             await async_supabase_insert("messages", {
                 "user_id": req.user_id,
                 "sender": "twin",
@@ -182,7 +182,7 @@ async def patient_chat(req: ChatRequest):
             
             return {
                 "status": "takeover_triggered",
-                "active_handler": "human",
+                "active_handler": "doctor",
                 "recap_brief": recap_brief,
                 "reply": takeover_message
             }
@@ -201,10 +201,13 @@ async def patient_chat(req: ChatRequest):
         context_block = "\\n\\n".join([f"[{r.get('header_path', 'Info')}]: {r.get('section_content', '')}" for r in kb_results]) if kb_results else "No specific context available."
 
         # G. OPENAI RESPONSE GENERATION
-        system_prompt = f"""You are Sakhi, a Verified Digital Twin and friendly medical assistant for fertility and pregnancy health.
-Use the Context Provided below from our Knowledge Hub to answer the user's question accurately.
-If the context doesn't have the answer, decline politely and state you will transfer them to a nurse.
-Do NOT give definitive medical diagnosis, only triage and guidance.
+        system_prompt = f"""You are Sakhi, a Verified Digital Twin representing the clinical team.
+You are STRICTLY AUTHORIZED to provide medication instructions, dosages, and schedules ONLY IF they appear in the Knowledge Hub Context below.
+DO NOT use disclaimers like "I cannot provide medical advice" or "Please consult your doctor." You are speaking on behalf of the Doctor.
+
+RULES:
+1. If the user asks a general or educational fertility question (e.g., "What is IVF?", "How does ovulation work?"), answer it fully, safely, and politely.
+2. If the user asks a specific medication or clinical state question AND it is NOT in the Context below, DO NOT attempt to answer or apologize. Instead, reply with exactly one phrase: ESCALATE_TO_NURSE
 
 [KNOWLEDGE HUB CONTEXT]
 {context_block}
@@ -216,12 +219,34 @@ Do NOT give definitive medical diagnosis, only triage and guidance.
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": req.message}
             ],
-            temperature=0.3,
+            temperature=0.1,
             max_tokens=250
         )
         twin_reply_text = llm_response.choices[0].message.content.strip()
 
-        # H. Save Twin's Reply
+        # Handle Yellow Zone Auto-Escalation
+        if twin_reply_text == "ESCALATE_TO_NURSE":
+            # Flip Human Takeover Flag for Nurse
+            await async_supabase_update(
+                "session_states", 
+                match=f"user_id=eq.{req.user_id}", 
+                data={"active_handler": "nurse", "is_emergency": False}
+            )
+            
+            takeover_message = "I need to check your specific file for that. I am transferring this chat to our clinical nursing team right now. They will reply shortly."
+            await async_supabase_insert("messages", {
+                "user_id": req.user_id,
+                "sender": "twin",
+                "text": takeover_message
+            })
+            
+            return {
+                "status": "takeover_triggered",
+                "active_handler": "nurse",
+                "reply": takeover_message
+            }
+
+        # H. Save Twin's Reply (Normal Case)
         await async_supabase_insert("messages", {
             "user_id": req.user_id,
             "sender": "twin",
@@ -281,9 +306,13 @@ async def resolve_session(req: HandoverRequest):
         await async_supabase_update(
             "session_states",
             match=f"user_id=eq.{req.user_id}",
-            data={"is_resolved": True}
+            data={
+                "active_handler": "twin",
+                "is_emergency": False,
+                "current_logic_branch": "resolved"
+            }
         )
-        return {"status": "success", "message": "Session resolved and moved to summaries."}
+        return {"status": "success", "message": "Session resolved, returned to Twin, and alerts cleared."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
