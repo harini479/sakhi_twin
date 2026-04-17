@@ -1,0 +1,38 @@
+﻿Starting load test on http://localhost:8000/sakhi/chat
+Loaded 15 users from data/test_users.json
+Concurrency: 15
+----------------------------------------
+Req 04 (User 9398203083): ERROR All connection attempts failed in 2.32s
+Req 00 (User 7207180691): ERROR All connection attempts failed in 2.37s
+Req 05 (User 9346101504): ERROR All connection attempts failed in 2.32s
+Req 03 (User 6302334735): ERROR All connection attempts failed in 2.32s
+Req 01 (User 8143630515): ERROR All connection attempts failed in 2.32s
+Req 02 (User 7416308705): ERROR All connection attempts failed in 2.32s
+Req 06 (User 7702601181): ERROR All connection attempts failed in 2.32s
+Req 07 (User 9550400031): ERROR All connection attempts failed in 2.32s
+Req 12 (User 7672024272): ERROR All connection attempts failed in 2.32s
+Req 08 (User 6301055103): ERROR All connection attempts failed in 2.32s
+Req 11 (User 9178973103): ERROR All connection attempts failed in 2.32s
+Req 14 (User 3232312321): ERROR All connection attempts failed in 2.32s
+Req 09 (User 9618325208): ERROR All connection attempts failed in 2.32s
+Req 10 (User 7671070803): ERROR All connection attempts failed in 2.32s
+Req 13 (User 9848048284): ERROR All connection attempts failed in 2.32s
+----------------------------------------
+Load Test Completed
+Total Requests: 15
+Successful: 0
+Failed: 15
+Total Wall Time: 2.37s
+
+Failure Details:
+  Req 0: ERROR - All connection attempts failed
+  Req 1: ERROR - All connection attempts failed
+  Req 2: ERROR - All connection attempts failed
+  Req 3: ERROR - All connection attempts failed
+  Req 4: ERROR - All connection attempts failed
+  Req 5: ERROR - All connection attempts failed
+  Req 6: ERROR - All connection attempts failed
+  Req 7: ERROR - All connection attempts failed
+  Req 8: ERROR - All connection attempts failed
+  Req 9: ERROR - All connection attempts failed
+  ... and 5 more.

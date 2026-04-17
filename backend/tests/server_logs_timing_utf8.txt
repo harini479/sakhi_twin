@@ -1,0 +1,969 @@
+﻿py : INFO:modules.model_gateway:Initializing ModelGateway with anchor vectors...
+At line:1 char:178
++ ... -Seconds 2; py -m uvicorn main:app --host 0.0.0.0 --port 8000 > serve ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO:modules.mo...chor vectors...:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Computing granular anchors for Simple Medical categories...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:ModelGateway initialized successfully
+INFO:modules.slm_client:SLMClient initialized with endpoint: http://72.61.228.9:5000/chat
+INFO:     Started server process [33344]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.6301055103 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.9618325208 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.9398203083 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.7207180691 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.9550400031 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.9178973103 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.8143630515 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.d6361ef
+3-7dd3-4d22-bf88-0d55d0d57c17 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.9346101504 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.7702601181 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.b4a0800
+c-f7ee-40f1-b149-c6cecdc5a3f9 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.3232312321 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.7416308705 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.5614b1b
+1-4ab6-4903-8514-c03b37025657 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.53f6fd9
+a-09f3-4332-84d5-db2d30dddb27 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.f3d352f
+0-4b1e-4286-b573-7732988c2fd7 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.9659693
+5-3323-42f4-8acd-ccfccfece540 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.6821d95
+b-0554-491a-8486-030aa44153f5 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.3e7331f
+a-7476-4c18-96c0-66d7499e6d11 "HTTP/1.1 200 OK"
+INFO:modules.guardrails:Out of scope detected: \b(travel|vacation|hotel|flight booking|tourist)\b
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.9c290e8
+b-1cf4-4847-90a3-97783b171490 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.c81dfc3
+9-ef4c-47d8-b258-f184b19647d4 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'What vitamins are essential fo...'
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.45c956a
+5-3ee3-47ba-9ea4-b08b4819676c "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.7671070803 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.9848048284 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.7672024272 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&phone_number=eq.6302334735 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'How do I know if my baby is la...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'Can I drink coffee while pregn...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'What is the difference between...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'When should I start feeling th...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'What should I eat during the f...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'How can I relieve morning sick...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'Is it normal to have swelling ...'
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.5200b70
+b-45b9-4828-93c7-a19080015d8c "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'How long does it take to recov...'
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.e40dd91
+4-daed-46c6-93b9-93af2c939fae "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.f7b74ba
+4-4404-4de2-a452-3f4701e791e3 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_chat_states?select=context&user_id=eq.4740434
+4-4cb5-4bd3-8665-2b9d294cf85f "HTTP/1.1 200 OK"
+DEBUG: User=b4a0800c-f7ee-40f1-b149-c6cecdc5a3f9, Name=Jashwanth, Gender=Male, Location=Vizag
+DEBUG: User=d6361ef3-7dd3-4d22-bf88-0d55d0d57c17, Name=Vissu, Gender=Male, Location=Vizag
+DEBUG: User=5614b1b1-4ab6-4903-8514-c03b37025657, Name=Abhiram, Gender=male, Location=Vizag
+DEBUG: User=53f6fd9a-09f3-4332-84d5-db2d30dddb27, Name=Logan, Gender=Male, Location=Andhra pradesh
+DEBUG: User=96596935-3323-42f4-8acd-ccfccfece540, Name=Satwik, Gender=Male, Location=Vizag
+DEBUG: User=f3d352f0-4b1e-4286-b573-7732988c2fd7, Name=Sudheer, Gender=Male, Location=PM palem
+DEBUG: User=3e7331fa-7476-4c18-96c0-66d7499e6d11, Name=Deekshith, Gender=Male, Location=Vizag
+DEBUG: User=6821d95b-0554-491a-8486-030aa44153f5, Name=Harini, Gender=Female, Location=Vizag
+DEBUG: User=9c290e8b-1cf4-4847-90a3-97783b171490, Name=Jatin, Gender=Male, Location=Vizag
+DEBUG: User=c81dfc39-ef4c-47d8-b258-f184b19647d4, Name=deks, Gender=Hello, Location=Hyderabad
+DEBUG: User=45c956a5-3ee3-47ba-9ea4-b08b4819676c, Name=Anji, Gender=male, Location=Ananthapur
+DEBUG: User=e40dd914-daed-46c6-93b9-93af2c939fae, Name=Tejaswini, Gender=Female, Location=Vizag
+DEBUG: User=5200b70b-45b9-4828-93c7-a19080015d8c, Name=yesesvee, Gender=male, Location=Vizag
+DEBUG: User=f7b74ba4-4404-4de2-a452-3f4701e791e3, Name=Manognya, Gender=Female, Location=Visakhapatnam
+DEBUG: User=47404344-4cb5-4bd3-8665-2b9d294cf85f, Name=Deepthi, Gender=Female, Location=Yy
+INFO:     127.0.0.1:53963 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'How much weight should I expec...'
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:modules.translation_service:Translated 'How can I relieve morning sick...' to 'How can I relieve morning sick...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'Is it safe to exercise during ...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'What are the early signs of la...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'What are the risks of gestatio...'
+INFO:modules.slm_client:SLM generate_intent_label called - Message: 'What foods should I avoid whil...'
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.translation_service:Translated 'When should I start feeling th...' to 'When should I start feeling th...'
+INFO:modules.translation_service:Translated 'How do I know if my baby is la...' to 'How do I know if my baby is la...'
+INFO:modules.translation_service:Translated 'What vitamins are essential fo...' to 'What vitamins are essential fo...'
+INFO:modules.translation_service:Translated 'Can I drink coffee while pregn...' to 'Can I drink coffee while pregn...'
+INFO:modules.translation_service:Translated 'What should I eat during the f...' to 'What should I eat during the f...'
+INFO:modules.translation_service:Translated 'Is it normal to have swelling ...' to 'Is it normal to have swelling ...'
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'What should I eat during the first trimester of pr...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.094, Medical Simple (PREGNANCY): 0.532, Medical Complex: 
+0.324, Facility Info: 0.072
+INFO:modules.model_gateway:\u2192 Routing to: SLM_RAG (simple medical query)
+INFO:modules.model_gateway:Query: 'What vitamins are essential for prenatal care?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.092, Medical Simple (NUTRITION_AND_TESTS): 0.640, Medical 
+Complex: 0.298, Facility Info: 0.175
+INFO:modules.model_gateway:\u2192 Routing to: SLM_RAG (simple medical query)
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.53f6fd9a-09f3-4332-84d5-db2d30dddb27 "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.b4a0800c-f7ee-40f1-b149-c6cecdc5a3f9 "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.53f6fd9a-09f3-4332-84d5-db2d30dddb27&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:modules.translation_service:Translated 'Is it safe to exercise during ...' to 'Is it safe to exercise during ...'
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:modules.translation_service:Translated 'What foods should I avoid whil...' to 'What foods should I avoid whil...'
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:modules.translation_service:Translated 'What are the early signs of la...' to 'What are the early signs of la...'
+INFO:modules.translation_service:Translated 'What are the risks of gestatio...' to 'What are the risks of gestatio...'
+INFO:modules.translation_service:Translated 'How much weight should I expec...' to 'How much weight should I expec...'
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.b4a0800c-f7ee-40f1-b149-c6cecdc5a3f9&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:modules.translation_service:Translated 'How long does it take to recov...' to 'How long does it take to recov...'
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:modules.translation_service:Translated 'What is the difference between...' to 'IVF (In Vitro Fertilization) a...'
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM generate_rag_response called - Message: 'What should I eat during the first trimester of 
+pr...', Language: English
+INFO:modules.slm_client:Context length: 2748 characters
+INFO:modules.slm_client:Sending RAG request to SLM endpoint: http://72.61.228.9:5000/chat
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'Is it normal to have swelling in my feet during pr...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.094, Medical Simple (PREGNANCY): 0.396, Medical Complex: 
+0.383, Facility Info: 0.108
+INFO:modules.model_gateway:\u2192 Routing to: OPENAI_RAG (low confidence, defaulting to safe option)
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.96596935-3323-42f4-8acd-ccfccfece540 "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM generate_rag_response called - Message: 'What vitamins are essential for prenatal 
+care?...', Language: English
+INFO:modules.slm_client:Context length: 2673 characters
+INFO:modules.slm_client:Sending RAG request to SLM endpoint: http://72.61.228.9:5000/chat
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.96596935-3323-42f4-8acd-ccfccfece540&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'IVF (In Vitro Fertilization) and IUI (Intrauterine...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.091, Medical Simple (IVF): 0.685, Medical Complex: 0.158, 
+Facility Info: 0.187
+INFO:modules.model_gateway:\u2192 Routing to: SLM_RAG (simple medical query)
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.6821d95b-0554-491a-8486-030aa44153f5 "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.6821d95b-0554-491a-8486-030aa44153f5&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'How can I relieve morning sickness naturally?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.167, Medical Simple (GENERAL_HEALTH): 0.482, Medical 
+Complex: 0.319, Facility Info: 0.165
+INFO:modules.model_gateway:\u2192 Routing to: SLM_RAG (simple medical query)
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.9c290e8b-1cf4-4847-90a3-97783b171490 "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.9c290e8b-1cf4-4847-90a3-97783b171490&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM generate_rag_response called - Message: 'What is the difference between IVF and IUI?...', 
+Language: English
+INFO:modules.slm_client:Context length: 2738 characters
+INFO:modules.slm_client:Sending RAG request to SLM endpoint: http://72.61.228.9:5000/chat
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'When should I start feeling the baby move?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.111, Medical Simple (PREGNANCY): 0.362, Medical Complex: 
+0.331, Facility Info: 0.127
+INFO:modules.model_gateway:\u2192 Routing to: OPENAI_RAG (low confidence, defaulting to safe option)
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM generate_rag_response called - Message: 'How can I relieve morning sickness 
+naturally?...', Language: English
+INFO:modules.slm_client:Context length: 2876 characters
+INFO:modules.slm_client:Sending RAG request to SLM endpoint: http://72.61.228.9:5000/chat
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.f3d352f0-4b1e-4286-b573-7732988c2fd7 "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'Can I drink coffee while pregnant?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.136, Medical Simple (PREGNANCY): 0.458, Medical Complex: 
+0.295, Facility Info: 0.095
+INFO:modules.model_gateway:\u2192 Routing to: SLM_RAG (simple medical query)
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.5614b1b1-4ab6-4903-8514-c03b37025657 "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.f3d352f0-4b1e-4286-b573-7732988c2fd7&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.5614b1b1-4ab6-4903-8514-c03b37025657&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'How do I know if my baby is latching correctly dur...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.108, Medical Simple (POSTPARTUM): 0.348, Medical Complex: 
+0.257, Facility Info: 0.146
+INFO:modules.model_gateway:\u2192 Routing to: OPENAI_RAG (low confidence, defaulting to safe option)
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.d6361ef3-7dd3-4d22-bf88-0d55d0d57c17 "HTTP/1.1 
+200 OK"
+INFO:modules.slm_client:SLM generate_rag_response called - Message: 'Can I drink coffee while pregnant?...', Language: 
+English
+INFO:modules.slm_client:Context length: 7126 characters
+INFO:modules.slm_client:Sending RAG request to SLM endpoint: http://72.61.228.9:5000/chat
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.d6361ef3-7dd3-4d22-bf88-0d55d0d57c17&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+DEBUG: Final user_name passed to LLM: 'Logan'
+DEBUG: Final user_name passed to LLM: 'Jashwanth'
+Querying: What should I eat during the first trimester of pregnancy?...
+Querying: What vitamins are essential for prenatal care?...
+DEBUG: Final user_name passed to LLM: 'Satwik'
+Querying: Is it normal to have swelling in my feet during pregnancy?...
+DEBUG: Final user_name passed to LLM: 'Harini'
+Querying: IVF (In Vitro Fertilization) and IUI (Intrauterine Insemination) are both assisted reproductive technologies, but they differ in their procedures and applications.
+
+IVF involves retrieving eggs from a woman's ovaries and fertilizing them with sperm in a laboratory setting. The resulting embryos are then cultured for a few days before being transferred into the woman's uterus. IVF is often used in cases of severe infertility, blocked fallopian tubes, or when previous treatments have failed.
+
+IUI, on the other hand, involves placing sperm directly into a woman's uterus during her ovulation period. This procedure is less invasive and is typically used for couples with unexplained infertility, mild male factor infertility, or when using donor sperm.
+
+In summary, IVF is a more complex procedure that involves fertilization outside the body, while IUI is a simpler method that places sperm directly into the uterus....
+DEBUG: Final user_name passed to LLM: 'Jatin'
+Querying: How can I relieve morning sickness naturally?...
+DEBUG: Final user_name passed to LLM: 'Sudheer'
+DEBUG: Final user_name passed to LLM: 'Abhiram'
+Querying: When should I start feeling the baby move?...
+Querying: Can I drink coffee while pregnant?...
+DEBUG: Final user_name passed to LLM: 'Vissu'
+Medical gen error: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+Querying: How do I know if my baby is latching correctly during breastfeeding?...
+Response Payload: {'reply': 'I encountered an error processing your medical query.', 'mode': 'medical', 'language': 'English', 'youtube_link': None, 'infographic_url': None, 'route': 'openai_rag', 'intent': 'Normal swelling in feet during pregnancy is common.'}
+INFO:     127.0.0.1:53969 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.96596935-3323-42f4-8acd-ccfccfece540 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'How long does it take to recover from a C-section?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.069, Medical Simple (C_SECTION): 0.683, Medical Complex: 
+0.246, Facility Info: 0.133
+INFO:modules.model_gateway:\u2192 Routing to: SLM_RAG (simple medical query)
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.96596935-3323-42f4-8acd-ccfccfece540 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.c81dfc39-ef4c-47d8-b258-f184b19647d4 "HTTP/1.1 
+200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-77' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.c81dfc39-ef4c-47d8-b258-f184b19647d4&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'How much weight should I expect to gain during pre...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.007, Medical Simple (PREGNANCY): 0.469, Medical Complex: 
+0.263, Facility Info: 0.047
+INFO:modules.model_gateway:\u2192 Routing to: SLM_RAG (simple medical query)
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.45c956a5-3ee3-47ba-9ea4-b08b4819676c "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM generate_rag_response called - Message: 'How long does it take to recover from a 
+C-section?...', Language: English
+INFO:modules.slm_client:Context length: 8486 characters
+INFO:modules.slm_client:Sending RAG request to SLM endpoint: http://72.61.228.9:5000/chat
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.45c956a5-3ee3-47ba-9ea4-b08b4819676c&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+DEBUG: Final user_name passed to LLM: 'deks'
+Querying: How long does it take to recover from a C-section?...
+DEBUG: Final user_name passed to LLM: 'Anji'
+Medical gen error: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+Querying: How much weight should I expect to gain during pregnancy?...
+Response Payload: {'reply': 'I encountered an error processing your medical query.', 'mode': 'medical', 'language': 'English', 'youtube_link': None, 'infographic_url': None, 'route': 'openai_rag', 'intent': '### Baby Movements'}
+INFO:     127.0.0.1:53974 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'Is it safe to exercise during pregnancy?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.069, Medical Simple (PREGNANCY): 0.591, Medical Complex: 
+0.340, Facility Info: 0.111
+INFO:modules.model_gateway:\u2192 Routing to: SLM_RAG (simple medical query)
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.f3d352f0-4b1e-4286-b573-7732988c2fd7 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.f7b74ba4-4404-4de2-a452-3f4701e791e3 "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.f3d352f0-4b1e-4286-b573-7732988c2fd7 "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-78' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM generate_rag_response called - Message: 'How much weight should I expect to gain during 
+pre...', Language: English
+INFO:modules.slm_client:Context length: 7463 characters
+INFO:modules.slm_client:Sending RAG request to SLM endpoint: http://72.61.228.9:5000/chat
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.f7b74ba4-4404-4de2-a452-3f4701e791e3&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'What are the early signs of labor?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.110, Medical Simple (NATURAL_BIRTH): 0.428, Medical 
+Complex: 0.459, Facility Info: 0.128
+INFO:modules.model_gateway:\u2192 Routing to: OPENAI_RAG (complex medical or default)
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.47404344-4cb5-4bd3-8665-2b9d294cf85f "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM generate_rag_response called - Message: 'Is it safe to exercise during pregnancy?...', 
+Language: English
+INFO:modules.slm_client:Context length: 3460 characters
+INFO:modules.slm_client:Sending RAG request to SLM endpoint: http://72.61.228.9:5000/chat
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'What are the risks of gestational diabetes?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.015, Medical Simple (PREGNANCY): 0.408, Medical Complex: 
+0.363, Facility Info: 0.116
+INFO:modules.model_gateway:\u2192 Routing to: OPENAI_RAG (low confidence, defaulting to safe option)
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.47404344-4cb5-4bd3-8665-2b9d294cf85f&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.e40dd914-daed-46c6-93b9-93af2c939fae "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:modules.model_gateway:Query: 'What foods should I avoid while breastfeeding?...'
+INFO:modules.model_gateway:Similarity scores - Small Talk: 0.032, Medical Simple (POSTPARTUM): 0.397, Medical Complex: 
+0.275, Facility Info: 0.053
+INFO:modules.model_gateway:\u2192 Routing to: OPENAI_RAG (low confidence, defaulting to safe option)
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.e40dd914-daed-46c6-93b9-93af2c939fae&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=*&user_id=eq.5200b70b-45b9-4828-93c7-a19080015d8c "HTTP/1.1 
+200 OK"
+INFO:httpx:HTTP Request: GET https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations?select=user_id,message_text,mes
+sage_type,language,created_at&user_id=eq.5200b70b-45b9-4828-93c7-a19080015d8c&limit=50 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+DEBUG: Final user_name passed to LLM: 'Manognya'
+Querying: Is it safe to exercise during pregnancy?...
+DEBUG: Final user_name passed to LLM: 'Deepthi'
+DEBUG: Final user_name passed to LLM: 'Tejaswini'
+Querying: What are the early signs of labor?...
+DEBUG: Final user_name passed to LLM: 'yesesvee'
+Querying: What are the risks of gestational diabetes?...
+Querying: What foods should I avoid while breastfeeding?...
+Medical gen error: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+Response Payload: {'reply': 'I encountered an error processing your medical query.', 'mode': 'medical', 'language': 'English', 'youtube_link': None, 'infographic_url': None, 'route': 'openai_rag', 'intent': '###Latching Properly\n\nWhen checking if your baby is latching correctly, look for a deep latch around the areola, not just the nipple, and a relaxed facial expression, with the mouth open wide and the tongue extended while feeding.'}
+INFO:     127.0.0.1:53971 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.d6361ef3-7dd3-4d22-bf88-0d55d0d57c17 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM RAG response received: Hi Logan,
+
+The first trimester is a crucial time for the baby's growth and development. As for your ...
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.d6361ef3-7dd3-4d22-bf88-0d55d0d57c17 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-79' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Response Payload: {'reply': "Hi Logan,\n\nThe first trimester is a crucial time for the baby's growth and development. As for your diet, focus on nutrient-rich foods that promote overall health and support fetal development. *Pregnancy Nutrition*: Include iron-rich foods like lentils, beans, and spinach to prevent anemia. Consider taking prenatal vitamins as well. Foods high in folate like citrus fruits and leafy greens (spinach, kale) help prevent birth defects. Omega-3 rich foods like salmon, flaxseeds, and walnuts support brain and eye development. Always consult your doctor for personalized dietary advice.\n\n\nFollow ups :\n\n\n* What are some healthy breakfast options for a pregnant woman?\n* Can you suggest some iron-rich Indian dishes for a pregnant woman?\n* Are there any specific foods that help alleviate morning sickness during pregnancy?", 'mode': 'medical', 'language': 'English', 'youtube_link': 'https://youtube.com/shorts/l8MLNfZFa0c?si=_HUn-Bqy2fBfx5iV', 'infographic_url': 'https://sakhi-infographics.s3.ap-south-2.amazonaws.com/images/150.png', 'route': 'slm_rag', 'intent': '### Pregnancy Nutrition during First Trimester'}
+INFO:     127.0.0.1:53967 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/hierarchical_search "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.53f6fd9a-09f3-4332-84d5-db2d30dddb27 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/rpc/match_faq "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.53f6fd9a-09f3-4332-84d5-db2d30dddb27 "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-80' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM RAG response received: Hi Jashwanth,
+
+Prenatal care is crucial for a healthy pregnancy. Essential vitamins for prenatal car...
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Response Payload: {'reply': "Hi Jashwanth,\n\nPrenatal care is crucial for a healthy pregnancy. Essential vitamins for prenatal care include Folic Acid, Iron, Calcium, Vitamin D, and Omega-3 fatty acids. Folic acid helps prevent birth defects of the baby's brain and spine. Iron is vital for the mother's and baby's blood health. Calcium aids in the baby's bone development. Vitamin D supports bone health and immune function. Omega-3 fatty acids promote the baby's brain and eye development.\n\n\nFollow ups :\n\n\nHere are some follow-up questions you might find helpful:\n\n1. What are some natural sources of folic acid for prenatal care?\n2. How much iron is recommended for pregnant women?\n3. Can you recommend some prenatal-friendly foods to increase calcium intake?", 'mode': 'medical', 'language': 'English', 'youtube_link': 'https://youtube.com/shorts/l8MLNfZFa0c?si=_HUn-Bqy2fBfx5iV', 'infographic_url': 'https://sakhi-infographics.s3.ap-south-2.amazonaws.com/images/87.png', 'route': 'slm_rag', 'intent': 'Prenatal vitamins are a must for a healthy pregnancy.'}
+INFO:     127.0.0.1:53970 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.b4a0800c-f7ee-40f1-b149-c6cecdc5a3f9 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.b4a0800c-f7ee-40f1-b149-c6cecdc5a3f9 "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-81' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM RAG response received: Hi Harini,
+
+The main difference between IVF (In Vitro Fertilization) and IUI (Intrauterine Inseminat...
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Response Payload: {'reply': 'Hi Harini,\n\nThe main difference between IVF (In Vitro Fertilization) and IUI (Intrauterine Insemination) lies in the process of fertilization. IVF involves the fertilization of an egg outside the body, whereas IUI involves the direct injection of sperm into the uterus. IVF is typically recommended for couples with severe male factor infertility, unexplained infertility, or if the woman has endometriosis. IUI is more suitable for mild to moderate cases of male factor infertility or unexplained infertility. Additionally, IVF offers better success rates compared to IUI. \n\n\nFollow ups :\n\n\n* What are the success rates of IVF compared to IUI in India?\n* Can you explain the process of IVF step-by-step?\n* How does the cost of IVF compare to IUI in India?', 'mode': 'medical', 'language': 'English', 'youtube_link': 'https://www.youtube.com/shorts/e2K8CPvtsKg', 'infographic_url': 'https://sakhi-infographics.s3.ap-south-2.amazonaws.com/images/52.jpg', 'route': 'slm_rag', 'intent': '### Difference between IVF and IUI\n\nBoth IVF and IUI are fertility treatments, but IVF involves fertilization in a lab, while IUI is a simpler process where sperm is inserted directly into the uterus.'}
+INFO:     127.0.0.1:53968 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.6821d95b-0554-491a-8486-030aa44153f5 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.6821d95b-0554-491a-8486-030aa44153f5 "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-82' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM RAG response received: Hi Jatin,
+
+Relieving morning sickness naturally is a wonderful topic. *Ginger is your best friend!* ...
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Response Payload: {'reply': "Hi Jatin,\n\nRelieving morning sickness naturally is a wonderful topic. *Ginger is your best friend!* It's a natural remedy that has been used for centuries to alleviate nausea and vomiting. You can consume ginger in various forms: \n- *Ginger tea*: Steep fresh ginger in hot water, add honey and lemon to taste. \n- *Ginger candies*: Suck on them when symptoms strike. \n- *Ginger ale*: Drink ginger-flavored soda or make your own by mixing ginger syrup with sparkling water. \n- *Ginger biscuits*: Bake ginger-infused cookies or crackers to munch on. \n- *Ginger essential oil*: Add a few drops to your diffuser or inhale directly from a cloth or handkerchief.\n\n\nFollow ups :\n\n\nHere are some follow-up questions:\n- How can I incorporate ginger into my daily routine?\n- Are there any other natural remedies for morning sickness?\n- Can I use ginger if I'm taking medication for morning sickness?", 'mode': 'medical', 'language': 'English', 'youtube_link': 'https://youtube.com/shorts/l8MLNfZFa0c?si=_HUn-Bqy2fBfx5iV', 'infographic_url': 'https://sakhi-infographics.s3.ap-south-2.amazonaws.com/images/150.png', 'route': 'slm_rag', 'intent': 'Here are the natural remedies for morning sickness.'}
+INFO:     127.0.0.1:53965 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.9c290e8b-1cf4-4847-90a3-97783b171490 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.9c290e8b-1cf4-4847-90a3-97783b171490 "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-83' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Medical gen error: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+Response Payload: {'reply': 'I encountered an error processing your medical query.', 'mode': 'medical', 'language': 'English', 'youtube_link': None, 'infographic_url': None, 'route': 'openai_rag', 'intent': '### Early signs of labor\n\nEarly signs of labor include back pain, contractions, and bloody show.'}
+INFO:     127.0.0.1:53962 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.47404344-4cb5-4bd3-8665-2b9d294cf85f 
+"HTTP/1.1 200 OK"
+Medical gen error: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+Response Payload: {'reply': 'I encountered an error processing your medical query.', 'mode': 'medical', 'language': 'English', 'youtube_link': None, 'infographic_url': None, 'route': 'openai_rag', 'intent': 'Here are the risks of gestational diabetes.'}
+INFO:     127.0.0.1:53973 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.e40dd914-daed-46c6-93b9-93af2c939fae 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM RAG response received: Hi Abhiram,
+
+While there's no clear evidence that caffeine affects fertility in general, it's advise...
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.47404344-4cb5-4bd3-8665-2b9d294cf85f "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-84' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Response Payload: {'reply': "Hi Abhiram,\n\nWhile there's no clear evidence that caffeine affects fertility in general, it's advised to keep caffeine intake in control. However, once you're pregnant, it's recommended to cut down on coffee or switch to decaf completely. Caffeine can pass through the placenta and may increase your baby's heart rate, making them more prone to sleep disturbances. Additionally, high caffeine intake during pregnancy has been linked to low birth weight and other complications.\n\n\nFollow ups :\n\n\nHere are some follow-up questions to consider:\n- How much caffeine is considered safe during pregnancy?\n- Can I still drink coffee if I'm breastfeeding?\n- What are some alternative morning picks for a caffeine-free boost?", 'mode': 'medical', 'language': 'English', 'youtube_link': 'https://youtube.com/shorts/l8MLNfZFa0c?si=_HUn-Bqy2fBfx5iV', 'infographic_url': 'https://sakhi-infographics.s3.ap-south-2.amazonaws.com/images/158.png', 'route': 'slm_rag', 'intent': 'Here is the information about coffee consumption during pregnancy.'}
+INFO:     127.0.0.1:53964 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.e40dd914-daed-46c6-93b9-93af2c939fae "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-85' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.5614b1b1-4ab6-4903-8514-c03b37025657 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.5614b1b1-4ab6-4903-8514-c03b37025657 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-86' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+Medical gen error: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+Response Payload: {'reply': 'I encountered an error processing your medical query.', 'mode': 'medical', 'language': 'English', 'youtube_link': None, 'infographic_url': None, 'route': 'openai_rag', 'intent': 'Here are the foods to avoid while breastfeeding.'}
+INFO:     127.0.0.1:53975 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.5200b70b-45b9-4828-93c7-a19080015d8c 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.5200b70b-45b9-4828-93c7-a19080015d8c "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-87' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM RAG response received: Hi deks,
+
+Recovery from a C-section can take some time, but it's essential to follow your doctor's a...
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Response Payload: {'reply': "Hi deks,\n\nRecovery from a C-section can take some time, but it's essential to follow your doctor's advice for a smooth and safe healing process. Generally speaking, it can take 4-6 weeks to recover from a C-section. During this time, you'll need to avoid heavy lifting, bending, and strenuous activities. Your doctor may recommend rest, pain management, and follow-up appointments to check your progress.\n\n\nFollow ups :\n\n\nHere are some follow-up questions:\n- What are the typical costs associated with a C-section in India?\n- How can I manage post-surgery pain and discomfort during my recovery?\n- Are there any specific foods or nutrients that can help with C-section recovery?", 'mode': 'medical', 'language': 'English', 'youtube_link': None, 'infographic_url': None, 'route': 'slm_rag', 'intent': 'Recovery time from C-section.'}
+INFO:     127.0.0.1:53976 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.c81dfc39-ef4c-47d8-b258-f184b19647d4 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.c81dfc39-ef4c-47d8-b258-f184b19647d4 "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-88' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM RAG response received: Hi Anji,
+
+Generally speaking, a healthy weight gain during pregnancy varies from person to person. H...
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Response Payload: {'reply': "Hi Anji,\n\nGenerally speaking, a healthy weight gain during pregnancy varies from person to person. However, most women gain 10-12 kilograms (22-26 pounds) during the entire pregnancy period. It's essential to maintain a healthy weight before pregnancy to reduce the risk of complications. Aiming for a BMI between 18.5 and 24.9 is recommended. Your healthcare provider will monitor your weight gain and provide personalized guidance.\n\n\nFollow ups :\n\nHere are three follow-up questions:\n- What are some safe exercises I can do during pregnancy?\n- How often should I visit my healthcare provider during pregnancy?\n- What are the signs of a healthy weight gain during pregnancy?", 'mode': 'medical', 'language': 'English', 'youtube_link': None, 'infographic_url': None, 'route': 'slm_rag', 'intent': '### Expected Weight Gain During Pregnancy'}
+INFO:     127.0.0.1:53966 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_new_questions "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.45c956a5-3ee3-47ba-9ea4-b08b4819676c 
+"HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-90' coro=<store_new_question() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:109> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to store new question: 'charmap' codec can't encode character '\\U0001f4dd' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 125, in store_new_question
+    print(f"\U0001f4dd Stored new question for KB expansion: '{question[:50]}...' (similarity: {similarity:.2f})")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f4dd' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 129, in store_new_question
+    print(f"\u26a0\ufe0f Failed to store new question: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.45c956a5-3ee3-47ba-9ea4-b08b4819676c "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-89' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+INFO:httpx:HTTP Request: POST http://72.61.228.9:5000/chat "HTTP/1.1 200 OK"
+INFO:modules.slm_client:SLM RAG response received: Hi Manognya,
+
+Exercise is generally safe during pregnancy, but it's essential to consult your doctor...
+INFO:httpx:HTTP Request: POST https://srv1152901.hstgr.cloud/rest/v1/sakhi_conversations "HTTP/1.1 201 Created"
+Response Payload: {'reply': "Hi Manognya,\n\nExercise is generally safe during pregnancy, but it's essential to consult your doctor first. If you have a healthy pregnancy, regular physical activity can help you stay fit, manage weight gain, and reduce the risk of gestational diabetes and hypertension. However, certain exercises, like contact sports or those that involve high-impact movements, are best avoided. Low-impact activities like walking, swimming, and yoga are excellent options. Listen to your body and stop if you experience any discomfort or pain.\n\n\nFollow ups :\n\n\nHere are some follow-up questions to consider:\n- What are some common pregnancy-safe exercises to maintain flexibility and strength?\n- Can I continue my pre-pregnancy workout routine, or do I need to make significant changes?\n- How often should I exercise during pregnancy, and what are the recommended duration and intensity?", 'mode': 'medical', 'language': 'English', 'youtube_link': 'https://www.instagram.com/reel/DAn7PNOKi0_/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==', 'infographic_url': 'https://sakhi-infographics.s3.ap-south-2.amazonaws.com/images/172.jpg', 'route': 'slm_rag', 'intent': '### Safe Exercise During Pregnancy\n\nIt is generally safe to exercise during pregnancy, but it is recommended to consult a doctor first and follow a prenatal exercise routine.'}
+INFO:     127.0.0.1:53972 - "POST /sakhi/chat HTTP/1.1" 200 OK
+INFO:httpx:HTTP Request: GET 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?select=rewards&user_id=eq.f7b74ba4-4404-4de2-a452-3f4701e791e3 
+"HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: PATCH 
+https://srv1152901.hstgr.cloud/rest/v1/sakhi_users?user_id=eq.f7b74ba4-4404-4de2-a452-3f4701e791e3 "HTTP/1.1 200 OK"
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-91' coro=<award_points() done, defined at 
+D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py:74> exception=UnicodeEncodeError('charmap', "\u26a0\ufe0f 
+Failed to award points: 'charmap' codec can't encode character '\\U0001f3c6' in position 0: character maps to 
+<undefined>", 0, 2, 'character maps to <undefined>')>
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 102, in award_points
+    print(f"\U0001f3c6 Awarded {points} points ({reward_type.name}) to user {user_id}. New total: {new_total}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f3c6' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Ottobon\Sakhi-Whatsapp-Backend\modules\user_rewards.py", line 106, in award_points
+    print(f"\u26a0\ufe0f Failed to award points: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asus\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>

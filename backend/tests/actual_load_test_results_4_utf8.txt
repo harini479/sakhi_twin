@@ -1,0 +1,33 @@
+﻿Starting load test on http://localhost:8000/sakhi/chat
+Loaded 15 users from data/test_users.json
+Concurrency: 15
+----------------------------------------
+Req 01 (User 8143630515): SUCCESS in 3.98s
+Req 11 (User 9178973103): SUCCESS in 10.66s
+Req 04 (User 9398203083): SUCCESS in 10.66s
+Req 00 (User 7207180691): SUCCESS in 10.74s
+Req 06 (User 7702601181): SUCCESS in 11.05s
+Req 14 (User 3232312321): SUCCESS in 11.31s
+Req 12 (User 7672024272): SUCCESS in 12.12s
+Req 02 (User 7416308705): SUCCESS in 12.36s
+Req 05 (User 9346101504): SUCCESS in 12.62s
+Req 08 (User 6301055103): SUCCESS in 12.92s
+Req 10 (User 7671070803): SUCCESS in 13.61s
+Req 07 (User 9550400031): SUCCESS in 13.95s
+Req 13 (User 9848048284): SUCCESS in 14.81s
+Req 03 (User 6302334735): SUCCESS in 14.81s
+Req 09 (User 9618325208): SUCCESS in 14.81s
+----------------------------------------
+Load Test Completed
+Total Requests: 15
+Successful: 15
+Failed: 0
+Total Wall Time: 14.81s
+
+Response Time Metrics (Successful Requests):
+  Min: 3.98s
+  Max: 14.81s
+  Avg: 12.03s
+  Median: 12.36s
+
+Throughput: 1.01 req/s

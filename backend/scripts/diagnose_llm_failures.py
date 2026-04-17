@@ -1,0 +1,387 @@
+#!/usr/bin/env python3
+"""
+Sakhi LLM Failure Diagnosis Tool
+=================================
+This tool identifies potential failure points in the LLM response pipeline
+and provides recommendations for fixing them.
+
+Usage:
+    python diagnose_llm_failures.py
+"""
+
+import json
+import sys
+import io
+from datetime import datetime
+
+# Fix Windows console encoding
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+# ============================================================================
+# LLM FAILURE ANALYSIS REPORT
+# ============================================================================
+
+FAILURE_ANALYSIS = """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║             🔍 SAKHI LLM FAILURE DIAGNOSIS REPORT                            ║
+║                    Generated: {timestamp}                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+================================================================================
+🚨 CRITICAL FAILURE POINTS IDENTIFIED
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 1️⃣  ROUTING FAILURES (model_gateway.py)                                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Location: modules/model_gateway.py - decide_route() method                   │
+│                                                                              │
+│ PROBLEMS:                                                                    │
+│ • Lines 334-337: Medical complex always wins over medical simple             │
+│   if medical_complex_sim >= medical_simple_sim → OPENAI_RAG                  │
+│   This can route SIMPLE queries to the slower/expensive OpenAI path.         │
+│                                                                              │
+│ • Lines 329-331: Facility queries routed to SLM_RAG BEFORE checking if       │
+│   the query is actually about medical topics.                                │
+│   "what is the cost of IVF in hyderabad clinic" could be mislabeled.         │
+│                                                                              │
+│ • Lines 246-248: Thresholds may be too aggressive:                           │
+│   - SMALL_TALK_THRESHOLD = 0.75  (too high - misses casual variants)         │
+│   - FACILITY_INFO_THRESHOLD = 0.50 (too low - false positives)               │
+│                                                                              │
+│ IMPACT: Wrong model selected → irrelevant or poor quality responses          │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 2️⃣  CLASSIFICATION FAILURES (response_builder.py)                            │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Location: modules/response_builder.py - classify_message() function          │
+│                                                                              │
+│ PROBLEMS:                                                                    │
+│ • Lines 44-75: SIGNAL classification uses simple text parsing                │
+│   - Only checks for "YES" or "NO" in LLM output                              │
+│   - LLM could return "Maybe", "Partially", or malformed output               │
+│   - Default to "NO" if parsing fails (Line 74)                               │
+│                                                                              │
+│ • Lines 61-70: Fragile parsing logic:                                        │
+│   if low.startswith("identified language"):  # Case sensitive issue          │
+│   elif "[signal]" in low:  # Depends on exact formatting                     │
+│                                                                              │
+│ IMPACT: Medical questions classified as small talk → no RAG retrieval        │
+│ EXAMPLE: "నాకు PCOS ఉంది" (I have PCOS) might fail signal detection           │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 3️⃣  RAG RETRIEVAL FAILURES (search_hierarchical.py)                          │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Location: search_hierarchical.py - hierarchical_rag_query() function         │
+│                                                                              │
+│ PROBLEMS:                                                                    │
+│ • Line 5: match_threshold = 0.3 is very low                                  │
+│   - Low quality matches may be included                                      │
+│   - Irrelevant content passed to LLM                                         │
+│                                                                              │
+│ • Lines 28-35: Silent failure mode                                           │
+│   - Exception caught but only printed, not logged properly                   │
+│   - Returns empty results on DB error                                        │
+│                                                                              │
+│ • Lines 45-58: FAQ search separate from doc search                           │
+│   - YouTube link prioritized even if FAQ answer is irrelevant                │
+│   - Mixing sources without clear relevance ranking                           │
+│                                                                              │
+│ • Line 69: Returns "No relevant information found." for empty results        │
+│   - LLM then hallucinates instead of admitting lack of knowledge             │
+│                                                                              │
+│ IMPACT: Poor context → LLM generates inaccurate or hallucinated responses    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 4️⃣  SLM CLIENT FAILURES (slm_client.py)                                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Location: modules/slm_client.py - generate_chat() & generate_rag_response()  │
+│                                                                              │
+│ PROBLEMS:                                                                    │
+│ • Lines 70-117: API call can fail silently then fallback to mock             │
+│   - If SLM endpoint is slow, 30s timeout might not be enough                 │
+│   - No retry mechanism for transient failures                                │
+│                                                                              │
+│ • Lines 75-78: Payload format mismatch                                       │
+│   - "question" vs "message" field naming                                     │
+│   - "chat_history": "" always empty (conversation context lost!)             │
+│                                                                              │
+│ • Lines 162-166: RAG context passed but might be ignored                     │
+│   - "context" field may not be used by SLM endpoint                          │
+│   - No verification that SLM actually uses the context                       │
+│                                                                              │
+│ • Lines 119-132: Mock responses leak into production                         │
+│   - If SLM_ENDPOINT_URL not set, mock responses returned                     │
+│   - "This is a mock SLM response" - BAD UX!                                  │
+│                                                                              │
+│ IMPACT: SLM returns generic/mock responses instead of contextual answers     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 5️⃣  RESPONSE GENERATION FAILURES (response_builder.py)                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Location: modules/response_builder.py - generate_medical_response()          │
+│                                                                              │
+│ PROBLEMS:                                                                    │
+│ • Lines 179-228: System prompt is VERY long (~3KB)                           │
+│   - Complex formatting rules for follow-ups                                  │
+│   - LLM often ignores complex instructions                                   │
+│   - "MANDATORY RESPONSE STRUCTURE" is frequently violated                    │
+│                                                                              │
+│ • Lines 191-210: Strict follow-up format requirements                        │
+│   - " Follow ups : " with specific spacing                                   │
+│   - "Each question should be under 65 characters"                            │
+│   - LLM frequently fails these exact requirements                            │
+│                                                                              │
+│ • Lines 218-228: Context injection at end of system prompt                   │
+│   - "No KB retrieved" case gives vague guidance                              │
+│   - LLM may hallucinate when context is empty                                │
+│                                                                              │
+│ • Lines 241-242: Response truncation to 1024 chars                           │
+│   - May cut off mid-sentence or mid-follow-up                                │
+│   - Could result in broken or incomplete responses                           │
+│                                                                              │
+│ IMPACT: Malformed responses, missing follow-ups, cut-off answers             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 6️⃣  LANGUAGE HANDLING FAILURES (main.py + response_builder.py)               │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Location: Multiple files                                                     │
+│                                                                              │
+│ PROBLEMS:                                                                    │
+│ • main.py Line 187: Uses classified language, not user preference            │
+│   detected_lang = classification.get("language", req.language)               │
+│   User might prefer Telugu but LLM detects Tinglish                          │
+│                                                                              │
+│ • response_builder.py Lines 128-130: Tinglish handling is vague              │
+│   "write Telugu words using Roman letters" - ambiguous instruction           │
+│                                                                              │
+│ • No validation of language output from LLM                                  │
+│   - LLM might respond in English despite target_lang  = "te"                 │
+│                                                                              │
+│ IMPACT: Responses in wrong language, confusing Tinglish transliterations     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 7️⃣  CONVERSATION HISTORY FAILURES (main.py)                                  │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Location: main.py - Line 200                                                 │
+│                                                                              │
+│ PROBLEMS:                                                                    │
+│ • history = get_last_messages(user_id, limit=5)                              │
+│   - Only 5 messages - may lose important context                             │
+│   - History passed to OpenAI but NOT to SLM routes!                          │
+│                                                                              │
+│ • SLM routes (Lines 203-223 and 226-272) don't include history:              │
+│   - slm_client.generate_chat() doesn't get conversation history              │
+│   - slm_client.generate_rag_response() gets context but no history           │
+│                                                                              │
+│ IMPACT: SLM has no memory → repetitive or context-blind responses            │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+📊 FAILURE FREQUENCY MATRIX (Estimated)
+================================================================================
+
+| Failure Type                  | Frequency | Severity | User Impact        |
+|-------------------------------|-----------|----------|-------------------|
+| Wrong routing decision        | HIGH      | MEDIUM   | Slow/poor answers |
+| RAG returns no context        | MEDIUM    | HIGH     | Hallucinated info |
+| SLM mock responses            | LOW       | CRITICAL | Broken UX         |
+| Classification fails          | MEDIUM    | MEDIUM   | Wrong mode        |
+| Response truncation           | MEDIUM    | LOW      | Incomplete answer |
+| Language mismatch             | HIGH      | MEDIUM   | User confusion    |
+| Missing conversation context  | HIGH      | HIGH     | Repetitive Qs     |
+| Follow-up format broken       | HIGH      | LOW      | Bad UX            |
+
+================================================================================
+🛠️  RECOMMENDED FIXES (Priority Order)
+================================================================================
+
+1️⃣  FIX CONVERSATION HISTORY FOR SLM (HIGH PRIORITY)
+   Location: modules/slm_client.py
+   Change: Pass chat_history to SLM payload instead of empty string
+   Status: ❌ Not implemented
+
+2️⃣  ADD RAG FALLBACK CHAIN (HIGH PRIORITY)
+   Location: main.py Lines 226-272
+   Change: If SLM_RAG returns poor answer, fallback to OPENAI_RAG
+   Status: ❌ Not implemented
+
+3️⃣  IMPROVE ROUTING THRESHOLDS (MEDIUM PRIORITY)
+   Location: modules/model_gateway.py
+   Change: Lower SMALL_TALK_THRESHOLD to 0.70, raise FACILITY to 0.60
+   Status: ❌ Not implemented
+
+4️⃣  ADD RESPONSE VALIDATION (MEDIUM PRIORITY)
+   Location: modules/response_builder.py
+   Change: Validate response format before returning, fix malformed output
+   Status: ❌ Not implemented
+
+5️⃣  REMOVE MOCK RESPONSES FROM PRODUCTION (HIGH PRIORITY)
+   Location: modules/slm_client.py
+   Change: Raise exception instead of returning mock response
+   Status: ❌ Not implemented
+
+6️⃣  IMPROVE RAG THRESHOLD (LOW PRIORITY)
+   Location: modules/search_hierarchical.py
+   Change: Increase match_threshold to 0.5 for higher quality matches
+   Status: ❌ Not implemented
+
+================================================================================
+🧪 TEST QUERIES TO VERIFY FAILURES
+================================================================================
+
+Run these queries through terminal_chat.py to observe failures:
+
+1. ROUTING TEST - Should use SLM but might use OpenAI:
+   "what is ivf"
+   
+2. LANGUAGE TEST - Should respond in Telugu:
+   "IVF ante enti?" (What is IVF?)
+   
+3. CONTEXT TEST - Should remember previous answer:
+   "What is the cost of IVF?"
+   → then ask: "And what about in Hyderabad?"
+   
+4. RAG TEST - Should return accurate info:
+   "What are the symptoms of PCOS?"
+   
+5. FACILITY TEST - Should give clinic info:
+   "Where is the Vizag clinic?"
+   
+6. SMALL TALK TEST - Should be warm, not medical:
+   "I'm feeling sad today"
+
+================================================================================
+📁 FILES REQUIRING MODIFICATIONS
+================================================================================
+
+Priority 1 (Critical):
+  → modules/slm_client.py (Add history, remove mock)
+  → main.py (Pass history to SLM routes)
+
+Priority 2 (Important):
+  → modules/model_gateway.py (Tune thresholds)
+  → search_hierarchical.py (Improve RAG quality)
+
+Priority 3 (Nice to have):
+  → modules/response_builder.py (Simplify prompts)
+  → modules/text_utils.py (Smarter truncation)
+
+================================================================================
+"""
+
+def print_diagnosis():
+    """Print the complete failure analysis report."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    report = FAILURE_ANALYSIS.format(timestamp=timestamp)
+    print(report)
+    
+    # Save to file
+    with open("llm_failure_report.txt", "w", encoding="utf-8") as f:
+        f.write(report)
+    print("\n📄 Report saved to: llm_failure_report.txt")
+
+
+def create_test_cases():
+    """Create a JSON file with test cases for automated testing."""
+    test_cases = [
+        {
+            "id": "routing_slm_direct",
+            "query": "hi, how are you?",
+            "expected_route": "slm_direct",
+            "expected_mode": "general",
+            "description": "Simple greeting should route to SLM_DIRECT"
+        },
+        {
+            "id": "routing_slm_rag",
+            "query": "what is ivf treatment",
+            "expected_route": "slm_rag",
+            "expected_mode": "medical",
+            "description": "Simple medical query should route to SLM_RAG"
+        },
+        {
+            "id": "routing_openai_rag",
+            "query": "I have severe bleeding during pregnancy, what should I do?",
+            "expected_route": "openai_rag",
+            "expected_mode": "medical",
+            "description": "Emergency/complex query should route to OPENAI_RAG"
+        },
+        {
+            "id": "language_telugu",
+            "query": "IVF అంటే ఏంటి?",
+            "expected_language": "Telugu",
+            "description": "Telugu query should get Telugu response"
+        },
+        {
+            "id": "language_tinglish",
+            "query": "IVF ante enti",
+            "expected_language": "Tinglish",
+            "description": "Tinglish query should get Tinglish response"
+        },
+        {
+            "id": "context_continuation",
+            "queries": [
+                "What is the cost of IVF?",
+                "And what about IUI?"
+            ],
+            "expected_behavior": "Second query should understand context from first",
+            "description": "Conversation continuity test"
+        },
+        {
+            "id": "facility_info",
+            "query": "Where is the Vizag clinic located?",
+            "expected_route": "slm_rag",
+            "expected_contains": ["address", "location", "Vizag"],
+            "description": "Facility query should return location info"
+        },
+        {
+            "id": "emotional_support",
+            "query": "I'm feeling very stressed about my fertility journey",
+            "expected_route": "slm_direct",
+            "expected_tone": "empathetic",
+            "description": "Emotional query should get supportive, warm response"
+        },
+        {
+            "id": "rag_accuracy",
+            "query": "What are the symptoms of PCOS?",
+            "expected_contains": ["irregular periods", "weight", "hormonal"],
+            "description": "Medical query should contain accurate symptoms from KB"
+        },
+        {
+            "id": "followup_format",
+            "query": "What is egg freezing?",
+            "expected_contains": [" Follow ups :"],
+            "description": "Medical response should include follow-up questions"
+        }
+    ]
+    
+    with open("test_cases.json", "w", encoding="utf-8") as f:
+        json.dump(test_cases, f, indent=2, ensure_ascii=False)
+    
+    print("📋 Test cases saved to: test_cases.json")
+    return test_cases
+
+
+if __name__ == "__main__":
+    print_diagnosis()
+    print("\n" + "="*80)
+    create_test_cases()
+    print("\n" + "="*80)
+    print("""
+🎯 NEXT STEPS:
+   1. Review the failure report above
+   2. Run test cases using terminal_chat.py with /debug mode
+   3. Apply fixes in priority order
+   4. Re-test to verify improvements
+   
+💡 Quick command to start testing:
+   python terminal_chat.py
+   Then type /debug to enable debug mode and try the test queries.
+""")
