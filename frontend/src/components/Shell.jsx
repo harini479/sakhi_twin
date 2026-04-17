@@ -8,18 +8,32 @@ import {
   Search, 
   ChevronDown,
   MessageCircle,
-  FileText
+  FileText,
+  Activity
 } from 'lucide-react';
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const navItems = [
-    { name: 'Dashboard', path: '/doctor', icon: LayoutDashboard },
-    { name: 'Appointments', path: '/cro', icon: Calendar },
-    { name: 'Patients', path: '/frontdesk', icon: Users },
-    { name: 'Patient Summaries', path: '/summaries', icon: FileText },
-    { name: 'Messaging', path: '/messaging', icon: MessageCircle },
-  ];
+  const role = localStorage.getItem('janma_role') || 'doctor';
+  
+  let navItems = [];
+  if (role === 'doctor') {
+    navItems = [
+      { name: 'Dr. Dashboard', path: '/doctor', icon: LayoutDashboard },
+      { name: 'Patient Summaries', path: '/summaries', icon: FileText },
+      { name: 'Clinical Messaging', path: '/messaging', icon: MessageCircle },
+    ];
+  } else if (role === 'nurse') {
+    navItems = [
+      { name: 'Nurse Triage', path: '/cro', icon: Activity },
+      { name: 'Triage Messaging', path: '/messaging', icon: MessageCircle },
+    ];
+  } else {
+    navItems = [
+      { name: 'Front Desk', path: '/frontdesk', icon: Users },
+      { name: 'Appointments', path: '/cro', icon: Calendar },
+    ];
+  }
 
   return (
     <aside className="w-[280px] h-screen bg-white border-r border-border-color fixed left-0 top-0 flex flex-col">
@@ -81,15 +95,7 @@ const TopBar = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Global Role Switcher for Testing */}
-        <select 
-          value={globalRole} 
-          onChange={(e) => setGlobalRole(e.target.value)}
-          className="bg-slate-50 border border-slate-200 text-[12px] font-bold text-slate-700 rounded-md px-3 py-1.5 outline-none cursor-pointer"
-        >
-          <option value="doctor">Role: DOCTOR</option>
-          <option value="nurse">Role: NURSE</option>
-        </select>
+        {/* Strictly read role from login, no switching allowed here */}
         
         <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors border-l pl-4">
           <div className="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center text-xs font-bold">

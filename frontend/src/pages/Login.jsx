@@ -44,7 +44,10 @@ const Login = () => {
           icon={Stethoscope}
           description="Clinical review, AI expert notes, and patient escalation management."
           colorClass="bg-[#0EA5E9]"
-          onClick={() => navigate('/doctor/onboarding')}
+          onClick={() => {
+            localStorage.setItem('janma_role', 'doctor');
+            navigate('/doctor/onboarding');
+          }}
         />
         <RoleCard 
           role="nurse"
@@ -52,7 +55,10 @@ const Login = () => {
           icon={Activity}
           description="Clinical triage, monitoring, and specialized clinical workflow."
           colorClass="bg-[#6366F1]"
-          onClick={() => navigate('/cro')}
+          onClick={() => {
+            localStorage.setItem('janma_role', 'nurse');
+            navigate('/cro');
+          }}
         />
         <RoleCard 
           role="frontdesk"
@@ -60,7 +66,10 @@ const Login = () => {
           icon={Users}
           description="Patient registration, scheduling, and administrative operations."
           colorClass="bg-[#10B981]"
-          onClick={() => navigate('/frontdesk')}
+          onClick={() => {
+            localStorage.setItem('janma_role', 'frontdesk');
+            navigate('/frontdesk');
+          }}
         />
       </div>
 
