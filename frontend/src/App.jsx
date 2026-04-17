@@ -7,6 +7,7 @@ import Doctor from './pages/Doctor';
 import DoctorOnboarding from './pages/DoctorOnboarding';
 import PatientSummaries from './pages/PatientSummaries';
 import Messaging from './pages/Messaging';
+import Alerts from './pages/Alerts';
 
 import Login from './pages/Login';
 
@@ -22,6 +23,7 @@ function App() {
           <Route path="doctor" element={<Doctor />} />
           <Route path="summaries" element={<PatientSummaries />} />
           <Route path="messaging" element={<Messaging />} />
+          <Route path="alerts" element={<Alerts />} />
         </Route>
       </Routes>
     </BrowserRouter>

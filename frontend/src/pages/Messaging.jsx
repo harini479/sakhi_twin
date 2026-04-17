@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   Plus, 
   Search, 
@@ -88,7 +89,8 @@ const PATIENTS = [
 ];
 
 const Messaging = () => {
-  const [selectedId, setSelectedId] = useState(null);
+  const location = useLocation();
+  const [selectedId, setSelectedId] = useState(location.state?.patientId || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [twinActive, setTwinActive] = useState(true);
   const [doctorMessage, setDoctorMessage] = useState('');

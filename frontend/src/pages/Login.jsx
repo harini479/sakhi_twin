@@ -25,6 +25,11 @@ const RoleCard = ({ role, title, icon: Icon, description, onClick, colorClass })
 const Login = () => {
   const navigate = useNavigate();
 
+  const handleLogin = (path, role) => {
+    localStorage.setItem('userRole', role);
+    navigate(path);
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 font-sans">
       {/* Brand Header */}
@@ -44,7 +49,7 @@ const Login = () => {
           icon={Stethoscope}
           description="Clinical review, AI expert notes, and patient escalation management."
           colorClass="bg-[#0EA5E9]"
-          onClick={() => navigate('/doctor/onboarding')}
+          onClick={() => handleLogin('/doctor/onboarding', 'Doctor')}
         />
         <RoleCard 
           role="nurse"
@@ -52,15 +57,15 @@ const Login = () => {
           icon={Activity}
           description="Clinical triage, monitoring, and specialized clinical workflow."
           colorClass="bg-[#6366F1]"
-          onClick={() => navigate('/cro')}
+          onClick={() => handleLogin('/cro', 'Nurse')}
         />
         <RoleCard 
           role="frontdesk"
-          title="Front Desk"
+          title="Frontdesk/CRO"
           icon={Users}
           description="Patient registration, scheduling, and administrative operations."
           colorClass="bg-[#10B981]"
-          onClick={() => navigate('/frontdesk')}
+          onClick={() => handleLogin('/frontdesk', 'Front Desk')}
         />
       </div>
 

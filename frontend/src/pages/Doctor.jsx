@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   ReactFlow, 
   Background, 
@@ -81,6 +82,7 @@ const SOP_CONTENT = {
 };
 
 const Doctor = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('OHSS Protocol');
   const [sopText, setSopText] = useState(SOP_CONTENT['OHSS Protocol']);
   const [saved, setSaved] = useState(false);
@@ -127,12 +129,19 @@ const Doctor = () => {
       >
         <div className="space-y-4">
           {[
-            { name: 'Aasha', alert: 'OHSS Risk', source: 'Decreased urination & severe bloating', time: '5m', red: true },
-            { name: 'Manual Override', alert: 'Emergency at Front Desk', source: 'Triggered by Front Desk', time: '4m', red: true },
-            { name: 'Ananya S.', alert: 'Post-Transfer Spotting', source: 'Bleeding 6 days post-transfer', time: '12m' },
-            { name: 'Meghna P.', alert: 'High Estradiol', source: 'E2 > 4000 pg/mL recorded', time: '18m', red: true },
+            { patientId: '1', name: 'Aasha', alert: 'OHSS Risk', source: 'Decreased urination & severe bloating', time: '5m', red: true },
+            { patientId: null, name: 'Manual Override', alert: 'Emergency at Front Desk', source: 'Triggered by Front Desk', time: '4m', red: true },
+            { patientId: '2', name: 'Ananya S.', alert: 'Post-Transfer Spotting', source: 'Bleeding 6 days post-transfer', time: '12m' },
+            { patientId: null, name: 'Meghna P.', alert: 'High Estradiol', source: 'E2 > 4000 pg/mL recorded', time: '18m', red: true },
           ].map((item, i) => (
-            <div key={i} className={`p-4 rounded-xl border flex items-center justify-between hover:shadow-md transition-all ${item.red ? 'bg-red-50 border-red-200' : 'bg-white border-border-color'}`}>
+            <div 
+              key={i} 
+              onClick={() => {
+                if (item.patientId) navigate('/messaging', { state: { patientId: item.patientId } });
+                else navigate('/messaging');
+              }}
+              className={`p-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer hover:shadow-md ${item.red ? 'bg-red-50 border-red-200' : 'bg-white border-border-color'}`}
+            >
               <div className="flex gap-4 items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.red ? 'bg-red-500 text-white' : 'bg-amber-100 text-amber-600'}`}>
                   <AlertCircle size={20} />
@@ -145,7 +154,16 @@ const Doctor = () => {
               </div>
               <div className="flex flex-col items-end gap-2">
                 <span className="text-[10px] font-bold text-text-secondary">{item.time} ago</span>
-                <button className={`text-[12px] font-bold underline ${item.red ? 'text-red-600' : 'text-primary'}`}>Review Case</button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (item.patientId) navigate('/messaging', { state: { patientId: item.patientId } });
+                    else navigate('/messaging');
+                  }}
+                  className={`text-[12px] font-bold underline cursor-pointer hover:scale-105 transition-transform ${item.red ? 'text-red-600' : 'text-primary'}`}
+                >
+                  Review Case
+                </button>
               </div>
             </div>
           ))}
