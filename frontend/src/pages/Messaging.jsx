@@ -34,6 +34,7 @@ const Messaging = () => {
   const [patients, setPatients] = useState([]);
   const [conversations, setConversations] = useState({});
   const [loading, setLoading] = useState(true);
+  const [pendingPatientId, setPendingPatientId] = useState(null);
 
   // 1. Fetch profiles and session states from Backend
   useEffect(() => {
@@ -99,8 +100,38 @@ const Messaging = () => {
   );
 
   const handleSelectPatient = (id) => {
-    setSelectedId(id);
-    setHumanMessage('');
+    const patient = patients.find(p => p.id === id);
+    if (!patient) return;
+
+    const currentHandler = patient.session_state?.active_handler || 'twin';
+    if (currentHandler !== viewRole) {
+      setPendingPatientId(id);
+    } else {
+      setSelectedId(id);
+      setHumanMessage('');
+    }
+  };
+
+  const handleTakeover = async () => {
+    if (!pendingPatientId) return;
+    try {
+      await fetch('http://127.0.0.1:8000/handover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: pendingPatientId, target_handler: viewRole })
+      });
+      setPatients(prev => prev.map(p => p.id === pendingPatientId ? {...p, session_state: {...p.session_state, active_handler: viewRole}} : p));
+      
+      setSelectedId(pendingPatientId);
+      setHumanMessage('');
+      setPendingPatientId(null);
+    } catch (e) {
+      console.error("Takeover failed", e);
+    }
+  };
+
+  const handleCancelTakeover = () => {
+    setPendingPatientId(null);
   };
 
   const parseFlags = (flags) => {
@@ -178,6 +209,7 @@ const Messaging = () => {
   return (
     <div
       style={{
+        position: 'relative',
         display: 'flex',
         height: 'calc(100vh - 136px)',
         minHeight: '400px',
@@ -257,6 +289,8 @@ const Messaging = () => {
             filteredPatients.map(p => {
               const isEmergency = p.session_state?.is_emergency;
               const hasFlags = parseFlags(p.clinical_flags).length > 0;
+              const activeH = p.session_state?.active_handler || 'twin';
+              const isGrayedOut = (viewRole === 'doctor' && activeH === 'nurse') || (viewRole === 'nurse' && activeH === 'doctor');
               return (
                 <button
                   key={p.id}
@@ -273,7 +307,9 @@ const Messaging = () => {
                     borderLeft: selectedId === p.id ? '3px solid #0ea5e9' : '3px solid transparent',
                     textAlign: 'left',
                     cursor: 'pointer',
-                    transition: 'background 0.15s'
+                    transition: 'background 0.15s, opacity 0.2s',
+                    opacity: isGrayedOut ? 0.45 : 1,
+                    filter: isGrayedOut ? 'grayscale(100%)' : 'none'
                   }}
                   onMouseEnter={e => { if (selectedId !== p.id) e.currentTarget.style.background = '#F1F5F9'; }}
                   onMouseLeave={e => { if (selectedId !== p.id) e.currentTarget.style.background = 'transparent'; }}
@@ -587,6 +623,50 @@ const Messaging = () => {
           </div>
         )}
       </div>
+
+      {/* ── TAKEOVER MODAL ── */}
+      {pendingPatientId && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, borderRadius: '24px'
+        }}>
+          <div style={{
+            background: '#fff', width: '400px', borderRadius: '16px', padding: '32px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+          }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertTriangle color="#f59e0b" size={24} /> Takeover Chat Request
+            </h3>
+            <p style={{ margin: '0 0 24px 0', fontSize: '15px', color: '#475569', lineHeight: 1.5 }}>
+              Are you sure you want to take over this conversation? 
+              You will assume manual control from the Digital Twin or current operator.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button 
+                onClick={handleCancelTakeover}
+                style={{
+                  padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0',
+                  background: '#fff', color: '#64748b', fontWeight: 600, cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleTakeover}
+                style={{
+                  padding: '10px 16px', borderRadius: '8px', border: 'none',
+                  background: '#7c3aed', color: '#fff', fontWeight: 600, cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(124,58,237,0.25)'
+                }}
+              >
+                Yes, Takeover
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

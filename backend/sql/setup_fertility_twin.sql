@@ -24,7 +24,7 @@ CREATE TABLE profiles (
 -- Controls who is active: ops (Admin/Nudge), twin (Clinical RAG), doctor (Manual override)
 CREATE TABLE session_states (
     user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
-    active_handler TEXT DEFAULT 'ops' CHECK (active_handler IN ('ops', 'twin', 'doctor')),
+    active_handler TEXT DEFAULT 'ops' CHECK (active_handler IN ('ops', 'twin', 'doctor', 'nurse')),
     is_emergency BOOLEAN DEFAULT FALSE,
     current_logic_branch TEXT,
     last_interaction TIMESTAMP WITH TIME ZONE DEFAULT NOW()
