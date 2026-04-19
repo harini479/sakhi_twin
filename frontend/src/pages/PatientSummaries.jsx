@@ -64,7 +64,7 @@ const ApprovalModal = ({ patient, onClose, onApprove, summarizing }) => (
             onClose();
           }}
         >
-          {summarizing ? 'Analyzing Transcripts...' : 'Approve & Send to Patient'}
+          {summarizing ? 'Analyzing Transcripts...' : 'Acknowledge Clinical Summary'}
         </Button>
       </div>
     </div>
@@ -127,7 +127,7 @@ const PatientSummaries = () => {
   };
 
   const handleApprove = () => {
-    setToast(`Summary approved and sent to ${selectedPatient.name}`);
+    setToast(`Summary reviewed and archived for ${selectedPatient.name}`);
     setTimeout(() => setToast(null), 3000);
   };
 

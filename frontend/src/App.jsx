@@ -6,7 +6,8 @@ import Nurse from './pages/Nurse';
 import Doctor from './pages/Doctor';
 import DoctorOnboarding from './pages/DoctorOnboarding';
 import PatientSummaries from './pages/PatientSummaries';
-import Messaging from './pages/Messaging';
+import DoctorMessaging from './pages/DoctorMessaging';
+import NurseMessaging from './pages/NurseMessaging';
 
 import Login from './pages/Login';
 
@@ -21,7 +22,8 @@ function App() {
           <Route path="cro" element={<Nurse />} />
           <Route path="doctor" element={<Doctor />} />
           <Route path="summaries" element={<PatientSummaries />} />
-          <Route path="messaging" element={<Messaging />} />
+          <Route path="doctor-messaging" element={<DoctorMessaging />} />
+          <Route path="nurse-messaging" element={<NurseMessaging />} />
         </Route>
       </Routes>
     </BrowserRouter>

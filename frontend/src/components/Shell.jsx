@@ -14,19 +14,19 @@ import {
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const role = localStorage.getItem('janma_role') || 'doctor';
+  const role = sessionStorage.getItem('janma_role') || 'doctor';
   
   let navItems = [];
   if (role === 'doctor') {
     navItems = [
       { name: 'Dr. Dashboard', path: '/doctor', icon: LayoutDashboard },
       { name: 'Patient Summaries', path: '/summaries', icon: FileText },
-      { name: 'Clinical Messaging', path: '/messaging', icon: MessageCircle },
+      { name: 'Clinical Messaging', path: '/doctor-messaging', icon: MessageCircle },
     ];
   } else if (role === 'nurse') {
     navItems = [
       { name: 'Nurse Triage', path: '/cro', icon: Activity },
-      { name: 'Triage Messaging', path: '/messaging', icon: MessageCircle },
+      { name: 'Triage Messaging', path: '/nurse-messaging', icon: MessageCircle },
     ];
   } else {
     navItems = [
@@ -76,10 +76,10 @@ const Sidebar = () => {
 };
 
 const TopBar = () => {
-  const [globalRole, setGlobalRole] = React.useState(localStorage.getItem('janma_role') || 'doctor');
+  const [globalRole, setGlobalRole] = React.useState(sessionStorage.getItem('janma_role') || 'doctor');
 
   React.useEffect(() => {
-    localStorage.setItem('janma_role', globalRole);
+    sessionStorage.setItem('janma_role', globalRole);
     window.dispatchEvent(new Event('roleChange'));
   }, [globalRole]);
 

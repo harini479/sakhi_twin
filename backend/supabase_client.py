@@ -33,6 +33,8 @@ HEADERS = {
     "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
     "Content-Type": "application/json",
     "Prefer": "return=representation",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache"
 }
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
