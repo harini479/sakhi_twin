@@ -22,7 +22,8 @@ function App() {
           <Route path="cro" element={<Nurse />} />
           <Route path="doctor" element={<Doctor />} />
           <Route path="summaries" element={<PatientSummaries />} />
-          <Route path="messaging" element={<Messaging />} />
+          <Route path="messaging" element={<DoctorMessaging />} />
+          <Route path="nurse-messaging" element={<NurseMessaging />} />
           <Route path="twin" element={<DigitalTwin />} />
         </Route>
       </Routes>
