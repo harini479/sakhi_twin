@@ -6,7 +6,8 @@ import Nurse from './pages/Nurse';
 import Doctor from './pages/Doctor';
 import DoctorOnboarding from './pages/DoctorOnboarding';
 import PatientSummaries from './pages/PatientSummaries';
-import Messaging from './pages/Messaging';
+import DoctorMessaging from './pages/DoctorMessaging';
+import NurseMessaging from './pages/NurseMessaging';
 
 import Login from './pages/Login';
 import DigitalTwin from './pages/DigitalTwin';

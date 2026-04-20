@@ -1,36 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Search, 
-  MessageCircle, 
-  Check, 
-  CheckCheck, 
-  MoreVertical, 
+import {
+  Plus,
+  Search,
+  MessageCircle,
+  Check,
+  CheckCheck,
+  MoreVertical,
   Phone,
   Bot,
   Send,
-  AlertTriangle
+  AlertTriangle,
+  Activity
 } from 'lucide-react';
 import { supabase } from '../supabase';
 
 const SEVERITY_CONFIG = {
   critical: { label: 'Critical', bg: '#fef2f2', color: '#dc2626', dot: '#ef4444' },
   moderate: { label: 'Moderate', bg: '#fffbeb', color: '#d97706', dot: '#f59e0b' },
-  safe:     { label: 'Safe',     bg: '#f0fdf4', color: '#16a34a', dot: '#22c55e' },
+  safe: { label: 'Safe', bg: '#f0fdf4', color: '#16a34a', dot: '#22c55e' },
 };
 
-const Messaging = () => {
+const DoctorMessaging = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewRole, setViewRole] = useState(localStorage.getItem('janma_role') || 'doctor'); 
+  const [viewRole, setViewRole] = useState(sessionStorage.getItem('janma_role') || 'doctor');
   const [humanMessage, setHumanMessage] = useState('');
+  const [takeoverPrompt, setTakeoverPrompt] = useState(null);
+  const [liveRecap, setLiveRecap] = useState(null);
+  const [fetchingRecap, setFetchingRecap] = useState(false);
 
   useEffect(() => {
-    const syncRole = () => setViewRole(localStorage.getItem('janma_role') || 'doctor');
+    const syncRole = () => setViewRole(sessionStorage.getItem('janma_role') || 'doctor');
     window.addEventListener('roleChange', syncRole);
     return () => window.removeEventListener('roleChange', syncRole);
   }, []);
-  
+
   const [patients, setPatients] = useState([]);
   const [conversations, setConversations] = useState({});
   const [loading, setLoading] = useState(true);
@@ -72,30 +76,62 @@ const Messaging = () => {
     fetchMessages();
 
     // 3. Setup Supabase Realtime Subscription for this patient's messages
+    const channelName = `messages_${selectedId}_${viewRole}_${Math.random().toString(36).substring(7)}`;
     const channel = supabase
-      .channel(`messages_${selectedId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `user_id=eq.${selectedId}` }, 
+      .channel(channelName)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `user_id=eq.${selectedId}` },
         (payload) => {
-          setConversations(prev => {
-            const existing = prev[selectedId] || [];
-            // Basic dedupe check
-            if (existing.find(m => m.message_id === payload.new.message_id)) return prev;
-            return { ...prev, [selectedId]: [...existing, payload.new] };
-          });
+          if (payload.eventType === 'INSERT') {
+            setConversations(prev => {
+              const existing = prev[selectedId] || [];
+              if (existing.find(m => m.message_id === payload.new.message_id)) return prev;
+              return { ...prev, [selectedId]: [...existing, payload.new] };
+            });
+          }
+        })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedId, viewRole]);
+
+  // 3b. Setup Supabase Realtime Subscription for session_states globally
+  useEffect(() => {
+    const channel = supabase
+      .channel('db_session_states_doctor')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'session_states' }, (payload) => {
+        const newState = payload.new;
+        if (!newState?.user_id) return;
+        setPatients(prev => prev.map(p => {
+          if (p.id === newState.user_id) {
+            // MERGE to handle potential partial payloads
+            return { ...p, session_state: { ...p.session_state, ...newState } };
+          }
+          return p;
+        }));
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'session_states' }, (payload) => {
+        const newState = payload.new;
+        if (!newState?.user_id) return;
+        setPatients(prev => prev.map(p => {
+          if (p.id === newState.user_id) return { ...p, session_state: newState };
+          return p;
+        }));
       })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedId]);
+  }, []);
 
 
   const selectedPatient = selectedId ? patients.find(p => p.id === selectedId) : null;
   const activeH = selectedPatient?.session_state?.active_handler || 'twin';
   const currentMessages = selectedId ? (conversations[selectedId] || []) : [];
 
-  const filteredPatients = patients.filter(p => 
+  const filteredPatients = patients.filter(p =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -120,8 +156,8 @@ const Messaging = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: pendingPatientId, target_handler: viewRole })
       });
-      setPatients(prev => prev.map(p => p.id === pendingPatientId ? {...p, session_state: {...p.session_state, active_handler: viewRole}} : p));
-      
+      setPatients(prev => prev.map(p => p.id === pendingPatientId ? { ...p, session_state: { ...p.session_state, active_handler: viewRole } } : p));
+
       setSelectedId(pendingPatientId);
       setHumanMessage('');
       setPendingPatientId(null);
@@ -145,29 +181,34 @@ const Messaging = () => {
   };
 
   // 4. Role and Escalation Actions
-  const handleEscalateToDoctor = async () => {
+  const handleToggleHandover = async () => {
+    const isTakingOver = (activeH === 'twin');
+    const targetHandler = isTakingOver ? viewRole : 'twin';
     try {
       await fetch('http://127.0.0.1:8000/handover', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: selectedId, target_handler: 'doctor' })
+        body: JSON.stringify({ user_id: selectedId, target_handler: targetHandler })
       });
-      setPatients(prev => prev.map(p => p.id === selectedId ? {...p, session_state: {...p.session_state, active_handler: 'doctor', is_emergency: true}} : p));
+      setPatients(prev => prev.map(p => p.id === selectedId ? { ...p, session_state: { ...p.session_state, active_handler: targetHandler, is_emergency: isTakingOver ? true : false } } : p));
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleResumeTwin = async () => {
+  const handleGetLiveRecap = async () => {
+    if (!selectedId) return;
+    setFetchingRecap(true);
     try {
-      await fetch('http://127.0.0.1:8000/handover', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: selectedId, target_handler: 'twin' })
-      });
-      setPatients(prev => prev.map(p => p.id === selectedId ? {...p, session_state: {...p.session_state, active_handler: 'twin', is_emergency: false}} : p));
+      const res = await fetch(`http://127.0.0.1:8000/patients/${selectedId}/summary`);
+      if (res.ok) {
+        const data = await res.json();
+        setLiveRecap(data.summary);
+      }
     } catch (e) {
       console.error(e);
+    } finally {
+      setFetchingRecap(false);
     }
   };
 
@@ -175,7 +216,7 @@ const Messaging = () => {
     if (!humanMessage.trim() || !selectedId) return;
     const msgCopy = humanMessage.trim();
     setHumanMessage('');
-    
+
     // Add locally for instant UI
     const optimisticMsg = {
       message_id: Date.now().toString(),
@@ -202,7 +243,7 @@ const Messaging = () => {
 
   // Helper formatting dates
   const formatTime = (ts) => {
-    if(!ts) return '';
+    if (!ts) return '';
     return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
@@ -325,7 +366,7 @@ const Messaging = () => {
                       fontWeight: 700,
                       fontSize: '14px'
                     }}>
-                      {p.name.substring(0,2).toUpperCase()}
+                      {p.name.substring(0, 2).toUpperCase()}
                     </div>
                   </div>
 
@@ -343,7 +384,7 @@ const Messaging = () => {
                           {p.treatment_cycle}
                         </span>
                       )}
-                      
+
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '2px' }}>
                         {isEmergency && (
                           <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', background: '#dc2626', color: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -351,12 +392,12 @@ const Messaging = () => {
                           </span>
                         )}
                         {parseFlags(p.clinical_flags).map((flag, idx) => (
-                           <span key={idx} style={{
-                             fontSize: '9px', fontWeight: 700, padding: '2px 6px',
-                             background: '#fef2f2', color: '#ef4444', borderRadius: '4px', textTransform: 'uppercase'
-                           }}>
-                             {flag}
-                           </span>
+                          <span key={idx} style={{
+                            fontSize: '9px', fontWeight: 700, padding: '2px 6px',
+                            background: '#fef2f2', color: '#ef4444', borderRadius: '4px', textTransform: 'uppercase'
+                          }}>
+                            {flag}
+                          </span>
                         ))}
                       </div>
                     </div>
@@ -390,7 +431,7 @@ const Messaging = () => {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: '#fff', fontWeight: 700, fontSize: '13px'
                 }}>
-                  {selectedPatient.name.substring(0,2).toUpperCase()}
+                  {selectedPatient.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div>
                   <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', lineHeight: 1.2 }}>
@@ -398,35 +439,35 @@ const Messaging = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
                     <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>WhatsApp Channel</span>
-                    <span style={{ fontSize: '11px', color: activeH === 'twin' ? '#3b82f6' : activeH === 'doctor' ? '#ef4444' : '#d97706', fontWeight: 700 }}> 
-                      • {activeH === 'twin' ? 'AI Operating' : activeH === 'doctor' ? 'Doctor Override (RED)' : 'Nurse Override (YELLOW)'}
+                    <span style={{ fontSize: '11px', color: (activeH === 'twin' && selectedPatient?.session_state?.is_emergency) ? '#ef4444' : activeH === 'twin' ? '#3b82f6' : activeH === 'doctor' ? '#ef4444' : '#d97706', fontWeight: 700 }}>
+                      • {(activeH === 'twin' && selectedPatient?.session_state?.is_emergency) ? 'HUMAN TAKEOVER TRIGGERED (ALERT)' : activeH === 'twin' ? 'AI Operating' : activeH === 'doctor' ? 'Doctor Override (RED)' : 'Nurse Override (YELLOW)'}
                     </span>
                   </div>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {/* End/Archive Button */}
-                <button 
+                <button
                   onClick={async () => {
-                    if(window.confirm("Ending this session will move it to the Summaries dashboard and archive the chat. Continue?")) {
+                    if (window.confirm("Ending this session will move it to the Summaries dashboard and archive the chat. Continue?")) {
                       await fetch('http://127.0.0.1:8000/handover/resolve', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ user_id: selectedId, target_handler: 'twin' })
                       });
-                      window.location.reload(); // Refresh to clear active list
+                      // Update local state dynamically
+                      setPatients(prev => prev.map(p => p.id === selectedId ? { ...p, session_state: { ...p.session_state, active_handler: 'twin', is_emergency: false, current_logic_branch: 'resolved' } } : p));
                     }
                   }}
-                  style={{ 
-                    padding: '6px 14px', 
-                    borderRadius: '8px', 
-                    border: '1px solid #e2e8f0', 
-                    background: '#fff', 
-                    color: '#64748b', 
-                    fontSize: '11px', 
-                    fontWeight: 800, 
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    background: '#fff',
+                    color: '#64748b',
+                    fontSize: '11px',
+                    fontWeight: 800,
                     cursor: 'pointer',
-                    marginRight: '8px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px'
@@ -434,27 +475,89 @@ const Messaging = () => {
                 >
                   <Check size={14} /> RESOLVE CHAT
                 </button>
-                
-                {/* Logic for Escalate vs Resume based on Role and State */}
-                {activeH === 'nurse' && viewRole === 'nurse' && (
-                  <button 
-                    onClick={handleEscalateToDoctor}
-                    style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+
+                <button
+                  onClick={handleGetLiveRecap}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #e1e7ff',
+                    background: '#f5f7ff',
+                    color: '#4f46e5',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    marginRight: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Activity size={14} /> {fetchingRecap ? 'ANALYZING...' : 'LIVE AI RECAP'}
+                </button>
+
+                {/* Human Takeover Toggle */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#F8FAFC', padding: '6px 12px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: (activeH === 'twin' && !selectedPatient?.session_state?.is_emergency) ? '#0ea5e9' : '#94a3b8' }}>
+                    AI TWIN
+                  </span>
+
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: '44px',
+                      height: '24px',
+                      background: (activeH === 'twin' && !selectedPatient?.session_state?.is_emergency) ? '#cbd5e1' : (activeH === 'twin' ? '#fca5a5' : (activeH === 'doctor' ? '#ef4444' : '#d97706')),
+                      borderRadius: '12px',
+                      border: 'none',
+                      cursor: (activeH === 'twin' || activeH === viewRole) ? 'pointer' : 'not-allowed',
+                      transition: 'background 0.3s',
+                      padding: 0
+                    }}
+                    onClick={() => (activeH === 'twin' || activeH === viewRole) && handleToggleHandover()}
                   >
-                    <AlertTriangle size={14} /> ESCALATE TO DOCTOR
-                  </button>
-                )}
-                
-                {activeH !== 'twin' && (
-                  <button 
-                    onClick={handleResumeTwin}
-                    style={{ background: '#eff6ff', border: '1px solid #bfdbfe', color: '#3b82f6', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                  >
-                    <Bot size={14} /> RESUME AI TWIN
-                  </button>
-                )}
+                    <div style={{
+                      position: 'absolute',
+                      top: '2px',
+                      left: (activeH === 'twin' && !selectedPatient?.session_state?.is_emergency) ? '2px' : '22px',
+                      width: '20px',
+                      height: '20px',
+                      background: '#ffffff',
+                      borderRadius: '50%',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                      transition: 'left 0.3s'
+                    }} />
+                  </div>
+
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: (activeH !== 'twin' || selectedPatient?.session_state?.is_emergency) ? (activeH === 'nurse' ? '#d97706' : '#ef4444') : '#94a3b8' }}>
+                    HUMAN OVERRIDE
+                  </span>
+                </div>
               </div>
             </div>
+
+            {/* Live Recap Display */}
+            {liveRecap && (
+              <div style={{
+                margin: '0 24px 20px',
+                background: '#F0F7FF',
+                border: '1px solid #E1EEFF',
+                borderRadius: '16px',
+                padding: '16px',
+                position: 'relative',
+                animation: 'fadeIn 0.3s'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#4f46e5', textTransform: 'uppercase', tracking: '0.1em' }}>AI Live Insight</span>
+                  <button onClick={() => setLiveRecap(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#94a3b8' }}>
+                    <span style={{ fontSize: '14px', fontWeight: 'bold' }}>×</span>
+                  </button>
+                </div>
+                <p style={{ margin: 0, fontSize: '13px', color: '#1E293B', lineHeight: '1.5', fontStyle: 'italic' }}>
+                  "{liveRecap}"
+                </p>
+              </div>
+            )}
 
             {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px', background: '#F8FAFC' }}>
@@ -466,7 +569,7 @@ const Messaging = () => {
                 currentMessages.map((msg, index) => {
                   const isTwin = msg.sender === 'twin';
                   const isClinic = msg.sender === 'doctor' || msg.sender === 'nurse' || msg.sender === 'ops';
-                  
+
                   return (
                     <div
                       key={msg.message_id || index}
@@ -522,7 +625,6 @@ const Messaging = () => {
             {/* Input Bar */}
             <div style={{ padding: '14px 24px', borderTop: '1px solid #e2e8f0', background: '#fff', flexShrink: 0 }}>
               {activeH === 'twin' ? (
-                /* Twin is ON — locked read-only bar */
                 <div style={{
                   display: 'flex', alignItems: 'center',
                   background: '#F8FAFC',
@@ -534,11 +636,11 @@ const Messaging = () => {
                 }}>
                   <Bot size={16} color="#94a3b8" style={{ marginRight: '10px', flexShrink: 0 }} />
                   <span style={{ flex: 1, fontSize: '14px', color: '#94a3b8', fontStyle: 'italic' }}>
-                    Digital Twin is active and handling this thread. Input locked.
+                    {selectedPatient?.session_state?.is_emergency ? 'Patient is pending takeover. Please Take Over Chat to respond.' : 'Digital Twin is active and handling this thread. Input locked.'}
                   </span>
                 </div>
-              ) : activeH === 'doctor' && viewRole === 'nurse' ? (
-                /* Locked for Nurse because Doctor is handling */
+              ) : activeH === 'nurse' ? (
+                /* Locked for Doctor because Nurse is handling */
                 <div style={{
                   display: 'flex', alignItems: 'center',
                   background: '#F1F5F9',
@@ -549,7 +651,7 @@ const Messaging = () => {
                   cursor: 'not-allowed'
                 }}>
                   <span style={{ flex: 1, fontSize: '14px', color: '#64748b', fontStyle: 'italic', fontWeight: 500 }}>
-                    Doctor has taken over this chat. Input locked for Nurse.
+                    Nurse has taken over this chat. Input locked for Doctor.
                   </span>
                 </div>
               ) : (
@@ -640,11 +742,11 @@ const Messaging = () => {
               <AlertTriangle color="#f59e0b" size={24} /> Takeover Chat Request
             </h3>
             <p style={{ margin: '0 0 24px 0', fontSize: '15px', color: '#475569', lineHeight: 1.5 }}>
-              Are you sure you want to take over this conversation? 
+              Are you sure you want to take over this conversation?
               You will assume manual control from the Digital Twin or current operator.
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-              <button 
+              <button
                 onClick={handleCancelTakeover}
                 style={{
                   padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0',
@@ -653,7 +755,7 @@ const Messaging = () => {
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleTakeover}
                 style={{
                   padding: '10px 16px', borderRadius: '8px', border: 'none',
@@ -671,4 +773,4 @@ const Messaging = () => {
   );
 };
 
-export default Messaging;
+export default DoctorMessaging;

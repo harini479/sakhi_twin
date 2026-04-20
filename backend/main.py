@@ -164,8 +164,8 @@ async def patient_chat(req: ChatRequest):
         })
 
         # C. MUTE LOGIC (Digital Twin Architecture)
-        # If the active handler is NOT 'twin', bypass the AI auto-response entirely.
-        if session_state.get("active_handler") != "twin":
+        # If the active handler is NOT 'twin' OR if it's an emergency pending takeover, bypass the AI auto-response entirely.
+        if session_state.get("active_handler") != "twin" or session_state.get("is_emergency"):
             return {
                 "status": "bypassed", 
                 "active_handler": session_state.get("active_handler"), 
@@ -212,11 +212,11 @@ async def patient_chat(req: ChatRequest):
             )
             recap_brief = recap_resp.choices[0].message.content.strip()
             
-            # Trigger Human Takeover Flag FOR DOCTOR
+            # Trigger Human Takeover Flag 
             await async_supabase_update(
                 "session_states", 
                 match=f"user_id=eq.{req.user_id}", 
-                data={"active_handler": "doctor", "is_emergency": True}
+                data={"active_handler": "twin", "is_emergency": True}
             )
             
             takeover_message = "Your symptoms require expert review. I have escalated this directly to the clinical doctor."
@@ -228,7 +228,7 @@ async def patient_chat(req: ChatRequest):
             
             return {
                 "status": "takeover_triggered",
-                "active_handler": "doctor",
+                "active_handler": "twin",
                 "recap_brief": recap_brief,
                 "reply": takeover_message
             }
@@ -425,9 +425,9 @@ async def handle_handover(req: HandoverRequest):
     try:
         data_update = {"active_handler": req.target_handler}
         
-        # Reset emergency state if handing back to the AI twin
-        if req.target_handler == "twin":
-            data_update["is_emergency"] = False
+        # Always clear emergency state when a human formally claims the chat 
+        # or when we return control to the twin (resetting the alert)
+        data_update["is_emergency"] = False
             
         await async_supabase_update(
             "session_states",
