@@ -9,7 +9,7 @@ import PatientSummaries from './pages/PatientSummaries';
 import Messaging from './pages/Messaging';
 
 import Login from './pages/Login';
-
+import DigitalTwin from './pages/DigitalTwin';
 function App() {
   return (
     <BrowserRouter>
@@ -22,6 +22,7 @@ function App() {
           <Route path="doctor" element={<Doctor />} />
           <Route path="summaries" element={<PatientSummaries />} />
           <Route path="messaging" element={<Messaging />} />
+          <Route path="twin" element={<DigitalTwin />} />
         </Route>
       </Routes>
     </BrowserRouter>

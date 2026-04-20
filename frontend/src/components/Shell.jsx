@@ -9,7 +9,8 @@ import {
   ChevronDown,
   MessageCircle,
   FileText,
-  Activity
+  Activity,
+  BrainCircuit
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -22,6 +23,7 @@ const Sidebar = () => {
       { name: 'Dr. Dashboard', path: '/doctor', icon: LayoutDashboard },
       { name: 'Patient Summaries', path: '/summaries', icon: FileText },
       { name: 'Clinical Messaging', path: '/messaging', icon: MessageCircle },
+      { name: 'Digital Twin', path: '/twin', icon: BrainCircuit },
     ];
   } else if (role === 'nurse') {
     navItems = [
