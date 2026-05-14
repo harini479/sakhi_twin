@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Search, 
-  MessageCircle, 
-  Check, 
-  CheckCheck, 
-  MoreVertical, 
+import {
+  Plus,
+  Search,
+  MessageCircle,
+  Check,
+  CheckCheck,
+  MoreVertical,
   Phone,
   Bot,
   Send,
@@ -17,13 +17,13 @@ import { supabase } from '../supabase';
 const SEVERITY_CONFIG = {
   critical: { label: 'Critical', bg: '#fef2f2', color: '#dc2626', dot: '#ef4444' },
   moderate: { label: 'Moderate', bg: '#fffbeb', color: '#d97706', dot: '#f59e0b' },
-  safe:     { label: 'Safe',     bg: '#f0fdf4', color: '#16a34a', dot: '#22c55e' },
+  safe: { label: 'Safe', bg: '#f0fdf4', color: '#16a34a', dot: '#22c55e' },
 };
 
 const DoctorMessaging = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewRole, setViewRole] = useState(sessionStorage.getItem('janma_role') || 'doctor'); 
+  const [viewRole, setViewRole] = useState(sessionStorage.getItem('janma_role') || 'doctor');
   const [humanMessage, setHumanMessage] = useState('');
   const [takeoverPrompt, setTakeoverPrompt] = useState(null);
   const [liveRecap, setLiveRecap] = useState(null);
@@ -34,10 +34,11 @@ const DoctorMessaging = () => {
     window.addEventListener('roleChange', syncRole);
     return () => window.removeEventListener('roleChange', syncRole);
   }, []);
-  
+
   const [patients, setPatients] = useState([]);
   const [conversations, setConversations] = useState({});
   const [loading, setLoading] = useState(true);
+  const [pendingPatientId, setPendingPatientId] = useState(null);
 
   // 1. Fetch profiles and session states from Backend
   useEffect(() => {
@@ -78,7 +79,7 @@ const DoctorMessaging = () => {
     const channelName = `messages_${selectedId}_${viewRole}_${Math.random().toString(36).substring(7)}`;
     const channel = supabase
       .channel(channelName)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `user_id=eq.${selectedId}` }, 
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `user_id=eq.${selectedId}` },
         (payload) => {
           if (payload.eventType === 'INSERT') {
             setConversations(prev => {
@@ -87,7 +88,7 @@ const DoctorMessaging = () => {
               return { ...prev, [selectedId]: [...existing, payload.new] };
             });
           }
-      })
+        })
       .subscribe();
 
     return () => {
@@ -137,15 +138,38 @@ const DoctorMessaging = () => {
   });
 
   const handleSelectPatient = (id) => {
-    const p = patients.find(pat => pat.id === id);
-    if (!p) return;
-    
-    if (p.session_state?.is_emergency && p.session_state?.active_handler === 'twin') {
-      setTakeoverPrompt(p);
-    }
+    const patient = patients.find(p => p.id === id);
+    if (!patient) return;
 
-    setSelectedId(id);
-    setHumanMessage('');
+    const currentHandler = patient.session_state?.active_handler || 'twin';
+    if (currentHandler !== viewRole) {
+      setPendingPatientId(id);
+    } else {
+      setSelectedId(id);
+      setHumanMessage('');
+    }
+  };
+
+  const handleTakeover = async () => {
+    if (!pendingPatientId) return;
+    try {
+      await fetch('http://127.0.0.1:8000/handover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: pendingPatientId, target_handler: viewRole })
+      });
+      setPatients(prev => prev.map(p => p.id === pendingPatientId ? { ...p, session_state: { ...p.session_state, active_handler: viewRole } } : p));
+
+      setSelectedId(pendingPatientId);
+      setHumanMessage('');
+      setPendingPatientId(null);
+    } catch (e) {
+      console.error("Takeover failed", e);
+    }
+  };
+
+  const handleCancelTakeover = () => {
+    setPendingPatientId(null);
   };
 
   const parseFlags = (flags) => {
@@ -168,7 +192,7 @@ const DoctorMessaging = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: selectedId, target_handler: targetHandler })
       });
-      setPatients(prev => prev.map(p => p.id === selectedId ? {...p, session_state: {...p.session_state, active_handler: targetHandler, is_emergency: isTakingOver ? true : false}} : p));
+      setPatients(prev => prev.map(p => p.id === selectedId ? { ...p, session_state: { ...p.session_state, active_handler: targetHandler, is_emergency: isTakingOver ? true : false } } : p));
     } catch (e) {
       console.error(e);
     }
@@ -194,7 +218,7 @@ const DoctorMessaging = () => {
     if (!humanMessage.trim() || !selectedId) return;
     const msgCopy = humanMessage.trim();
     setHumanMessage('');
-    
+
     // Add locally for instant UI
     const optimisticMsg = {
       message_id: Date.now().toString(),
@@ -221,13 +245,14 @@ const DoctorMessaging = () => {
 
   // Helper formatting dates
   const formatTime = (ts) => {
-    if(!ts) return '';
+    if (!ts) return '';
     return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
     <div
       style={{
+        position: 'relative',
         display: 'flex',
         height: 'calc(100vh - 136px)',
         minHeight: '400px',
@@ -313,6 +338,7 @@ const DoctorMessaging = () => {
               const isEmergency = p.session_state?.is_emergency;
               const hasFlags = parseFlags(p.clinical_flags).length > 0;
               const activeH = p.session_state?.active_handler || 'twin';
+              const isGrayedOut = (viewRole === 'doctor' && activeH === 'nurse') || (viewRole === 'nurse' && activeH === 'doctor');
               return (
                 <button
                   key={p.id}
@@ -329,7 +355,9 @@ const DoctorMessaging = () => {
                     borderLeft: selectedId === p.id ? '3px solid #0ea5e9' : '3px solid transparent',
                     textAlign: 'left',
                     cursor: 'pointer',
-                    transition: 'background 0.15s'
+                    transition: 'background 0.15s, opacity 0.2s',
+                    opacity: isGrayedOut ? 0.45 : 1,
+                    filter: isGrayedOut ? 'grayscale(100%)' : 'none'
                   }}
                   onMouseEnter={e => { if (selectedId !== p.id) e.currentTarget.style.background = '#F1F5F9'; }}
                   onMouseLeave={e => { if (selectedId !== p.id) e.currentTarget.style.background = 'transparent'; }}
@@ -345,7 +373,7 @@ const DoctorMessaging = () => {
                       fontWeight: 700,
                       fontSize: '14px'
                     }}>
-                      {p.name.substring(0,2).toUpperCase()}
+                      {p.name.substring(0, 2).toUpperCase()}
                     </div>
                   </div>
 
@@ -359,7 +387,7 @@ const DoctorMessaging = () => {
                     {/* METADATA STORE */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
 
-                      
+
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '2px' }}>
                         {isEmergency && (
                           <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', background: '#dc2626', color: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -398,7 +426,7 @@ const DoctorMessaging = () => {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: '#fff', fontWeight: 700, fontSize: '13px'
                 }}>
-                  {selectedPatient.name.substring(0,2).toUpperCase()}
+                  {selectedPatient.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div>
                   <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', lineHeight: 1.2 }}>
@@ -406,7 +434,7 @@ const DoctorMessaging = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
                     <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>WhatsApp Channel</span>
-                    <span style={{ fontSize: '11px', color: (activeH === 'twin' && selectedPatient?.session_state?.is_emergency) ? '#ef4444' : activeH === 'twin' ? '#3b82f6' : activeH === 'doctor' ? '#ef4444' : '#d97706', fontWeight: 700 }}> 
+                    <span style={{ fontSize: '11px', color: (activeH === 'twin' && selectedPatient?.session_state?.is_emergency) ? '#ef4444' : activeH === 'twin' ? '#3b82f6' : activeH === 'doctor' ? '#ef4444' : '#d97706', fontWeight: 700 }}>
                       • {(activeH === 'twin' && selectedPatient?.session_state?.is_emergency) ? 'HUMAN TAKEOVER TRIGGERED (ALERT)' : activeH === 'twin' ? 'AI Operating' : activeH === 'doctor' ? 'Doctor Override (RED)' : 'Nurse Override (YELLOW)'}
                     </span>
                   </div>
@@ -414,26 +442,26 @@ const DoctorMessaging = () => {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {/* End/Archive Button */}
-                <button 
+                <button
                   onClick={async () => {
-                    if(window.confirm("Ending this session will move it to the Summaries dashboard and archive the chat. Continue?")) {
+                    if (window.confirm("Ending this session will move it to the Summaries dashboard and archive the chat. Continue?")) {
                       await fetch('http://127.0.0.1:8000/handover/resolve', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ user_id: selectedId, target_handler: 'twin' })
                       });
                       // Update local state dynamically
-                      setPatients(prev => prev.map(p => p.id === selectedId ? {...p, session_state: {...p.session_state, active_handler: 'twin', is_emergency: false, current_logic_branch: 'resolved'}} : p));
+                      setPatients(prev => prev.map(p => p.id === selectedId ? { ...p, session_state: { ...p.session_state, active_handler: 'twin', is_emergency: false, current_logic_branch: 'resolved' } } : p));
                     }
                   }}
-                  style={{ 
-                    padding: '6px 14px', 
-                    borderRadius: '8px', 
-                    border: '1px solid #e2e8f0', 
-                    background: '#fff', 
-                    color: '#64748b', 
-                    fontSize: '11px', 
-                    fontWeight: 800, 
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    background: '#fff',
+                    color: '#64748b',
+                    fontSize: '11px',
+                    fontWeight: 800,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -443,16 +471,16 @@ const DoctorMessaging = () => {
                   <Check size={14} /> RESOLVE CHAT
                 </button>
 
-                <button 
+                <button
                   onClick={handleGetLiveRecap}
-                  style={{ 
-                    padding: '6px 14px', 
-                    borderRadius: '8px', 
-                    border: '1px solid #e1e7ff', 
-                    background: '#f5f7ff', 
-                    color: '#4f46e5', 
-                    fontSize: '11px', 
-                    fontWeight: 800, 
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #e1e7ff',
+                    background: '#f5f7ff',
+                    color: '#4f46e5',
+                    fontSize: '11px',
+                    fontWeight: 800,
                     cursor: 'pointer',
                     marginRight: '8px',
                     display: 'flex',
@@ -462,13 +490,13 @@ const DoctorMessaging = () => {
                 >
                   <Activity size={14} /> {fetchingRecap ? 'ANALYZING...' : 'LIVE AI RECAP'}
                 </button>
-                
+
                 {/* Human Takeover Toggle */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#F8FAFC', padding: '6px 12px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                   <span style={{ fontSize: '12px', fontWeight: 700, color: (activeH === 'twin' && !selectedPatient?.session_state?.is_emergency) ? '#0ea5e9' : '#94a3b8' }}>
                     AI TWIN
                   </span>
-                  
+
                   <div
                     style={{
                       position: 'relative',
@@ -517,7 +545,7 @@ const DoctorMessaging = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontSize: '10px', fontWeight: 800, color: '#4f46e5', textTransform: 'uppercase', tracking: '0.1em' }}>AI Live Insight</span>
                   <button onClick={() => setLiveRecap(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#94a3b8' }}>
-                     <span style={{ fontSize: '14px', fontWeight: 'bold' }}>×</span>
+                    <span style={{ fontSize: '14px', fontWeight: 'bold' }}>×</span>
                   </button>
                 </div>
                 <p style={{ margin: 0, fontSize: '13px', color: '#1E293B', lineHeight: '1.5', fontStyle: 'italic' }}>
@@ -536,7 +564,7 @@ const DoctorMessaging = () => {
                 currentMessages.map((msg, index) => {
                   const isTwin = msg.sender === 'twin';
                   const isClinic = msg.sender === 'doctor' || msg.sender === 'nurse' || msg.sender === 'ops';
-                  
+
                   return (
                     <div
                       key={msg.message_id || index}
@@ -693,52 +721,44 @@ const DoctorMessaging = () => {
         )}
       </div>
 
-      {takeoverPrompt && (
+      {/* ── TAKEOVER MODAL ── */}
+      {pendingPatientId && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', zIndex: 100,
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, borderRadius: '24px'
         }}>
           <div style={{
-            background: '#fff', borderRadius: '16px', padding: '24px', width: '360px',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+            background: '#fff', width: '400px', borderRadius: '16px', padding: '32px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
           }}>
-            <h3 style={{ marginTop: 0, color: '#0F172A', fontSize: '18px', fontWeight: 800 }}>Take Over Chat?</h3>
-            <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.5, marginBottom: '24px' }}>
-              This patient is in an alert zone. Do you want to take over this chat manually as a Doctor?
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertTriangle color="#f59e0b" size={24} /> Takeover Chat Request
+            </h3>
+            <p style={{ margin: '0 0 24px 0', fontSize: '15px', color: '#475569', lineHeight: 1.5 }}>
+              Are you sure you want to take over this conversation?
+              You will assume manual control from the Digital Twin or current operator.
             </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button 
-                onClick={() => { setTakeoverPrompt(null); setSelectedId(null); }}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                onClick={handleCancelTakeover}
                 style={{
-                  padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0',
-                  background: '#fff', color: '#64748b', fontWeight: 700, cursor: 'pointer'
-                }}>
+                  padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0',
+                  background: '#fff', color: '#64748b', fontWeight: 600, cursor: 'pointer'
+                }}
+              >
                 Cancel
               </button>
-              <button 
-                onClick={async () => {
-                  const pId = takeoverPrompt.id;
-                  try {
-                    await fetch('http://127.0.0.1:8000/handover', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ user_id: pId, target_handler: 'doctor' })
-                    });
-                    setPatients(prev => prev.map(pt => pt.id === pId ? {...pt, session_state: {...pt.session_state, active_handler: 'doctor', is_emergency: true}} : pt));
-                    setSelectedId(pId);
-                    setHumanMessage('');
-                  } catch (e) {
-                    console.error(e);
-                  } finally {
-                    setTakeoverPrompt(null);
-                  }
-                }}
+              <button
+                onClick={handleTakeover}
                 style={{
-                  padding: '8px 16px', borderRadius: '8px', border: 'none',
-                  background: '#ef4444', color: '#fff', fontWeight: 700, cursor: 'pointer'
-                }}>
-                Take Over Chat
+                  padding: '10px 16px', borderRadius: '8px', border: 'none',
+                  background: '#7c3aed', color: '#fff', fontWeight: 600, cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(124,58,237,0.25)'
+                }}
+              >
+                Yes, Takeover
               </button>
             </div>
           </div>

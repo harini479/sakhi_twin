@@ -32,8 +32,11 @@ app.add_middleware(
 openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # --- Request Models ---
+from typing import Optional
+
 class ChatRequest(BaseModel):
-    user_id: str
+    user_id: Optional[str] = None
+    remote_jid: Optional[str] = None
     message: str
 
 class HandoverRequest(BaseModel):
@@ -88,13 +91,56 @@ async def get_messages(user_id: str):
 @app.post("/chat")
 async def patient_chat(req: ChatRequest):
     """
-    1. Checks session state to see if AI is active.
-    2. Stores Patient message.
-    3. Retrieves context from Knowledge Hub (HRAG).
-    4. Queries OpenAI to generate a medical response.
-    5. Stores Twin message.
+    1. Resolve user ID (Auto-registration for new WhatsApp numbers).
+    2. Checks session state to see if AI is active.
+    3. Stores Patient message.
+    4. Retrieves context from Knowledge Hub (HRAG).
+    5. Queries OpenAI to generate a medical response.
+    6. Stores Twin message.
     """
     try:
+        resolved_user_id = req.user_id
+
+        if not resolved_user_id and req.remote_jid:
+            profile_res = await async_supabase_select("profiles", filters=f"remote_jid=eq.{req.remote_jid}")
+            if profile_res and len(profile_res) > 0:
+                resolved_user_id = profile_res[0]["id"]
+            else:
+                extraction_prompt = "Extract patient details from the message if present. Return JSON strictly. Fields: name (string or null), age (integer or null), treatment_cycle (string or null), clinical_flags (list of strings or []). If name is unknown, leave it null."
+                extract_resp = await openai_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": extraction_prompt},
+                        {"role": "user", "content": req.message}
+                    ],
+                    temperature=0.1,
+                    response_format={"type": "json_object"}
+                )
+                try:
+                    extracted_data = json.loads(extract_resp.choices[0].message.content.strip())
+                except Exception:
+                    extracted_data = {}
+
+                name = extracted_data.get("name") or "New Patient"
+                new_profile = {
+                    "remote_jid": req.remote_jid,
+                    "name": name,
+                    "age": extracted_data.get("age"),
+                    "treatment_cycle": extracted_data.get("treatment_cycle"),
+                    "clinical_flags": extracted_data.get("clinical_flags") or []
+                }
+                
+                insert_res = await async_supabase_insert("profiles", new_profile)
+                if insert_res and len(insert_res) > 0:
+                    resolved_user_id = insert_res[0]["id"]
+                else:
+                    raise HTTPException(status_code=500, detail="Failed to create new user profile")
+
+        if not resolved_user_id:
+             raise HTTPException(status_code=400, detail="Missing user_id or remote_jid")
+             
+        req.user_id = resolved_user_id
+
         # A. Fetch or initialize Session State
         session_state_res = await async_supabase_select("session_states", filters=f"user_id=eq.{req.user_id}")
         if not session_state_res:

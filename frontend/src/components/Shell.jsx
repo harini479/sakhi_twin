@@ -1,27 +1,29 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Users, 
-  LogOut, 
-  Search, 
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  LogOut,
+  Search,
   ChevronDown,
   MessageCircle,
   FileText,
-  Activity
+  Activity,
+  BrainCircuit
 } from 'lucide-react';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const role = sessionStorage.getItem('janma_role') || 'doctor';
-  
+
   let navItems = [];
   if (role === 'doctor') {
     navItems = [
       { name: 'Dr. Dashboard', path: '/doctor', icon: LayoutDashboard },
       { name: 'Patient Summaries', path: '/summaries', icon: FileText },
-      { name: 'Clinical Messaging', path: '/doctor-messaging', icon: MessageCircle },
+      { name: 'Clinical Messaging', path: '/messaging', icon: MessageCircle },
+      { name: 'Digital Twin', path: '/twin', icon: BrainCircuit },
     ];
   } else if (role === 'nurse') {
     navItems = [
@@ -52,7 +54,7 @@ const Sidebar = () => {
           <NavLink
             key={item.name}
             to={item.path}
-            className={({ isActive }) => 
+            className={({ isActive }) =>
               `nav-item ${isActive ? 'active' : 'hover:bg-slate-50'}`
             }
           >
@@ -63,7 +65,7 @@ const Sidebar = () => {
       </nav>
 
       <div className="p-4 border-t border-border-color">
-        <button 
+        <button
           onClick={() => navigate('/')}
           className="nav-item w-full hover:bg-red-50 hover:text-red-500 transition-colors"
         >
@@ -87,16 +89,16 @@ const TopBar = () => {
     <header className="h-[56px] bg-white border-b border-border-color flex items-center justify-between px-6 sticky top-0 z-10">
       <div className="relative w-[400px]">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={16} />
-        <input 
-          type="text" 
-          placeholder="Global Search (Patients, Leads...)" 
+        <input
+          type="text"
+          placeholder="Global Search (Patients, Leads...)"
           className="input-search"
         />
       </div>
 
       <div className="flex items-center gap-4">
         {/* Strictly read role from login, no switching allowed here */}
-        
+
         <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-1.5 rounded-lg transition-colors border-l pl-4">
           <div className="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center text-xs font-bold">
             {globalRole === 'doctor' ? 'DR' : 'NR'}
@@ -122,7 +124,7 @@ const Shell = () => {
           <Outlet />
         </main>
       </div>
-      
+
       {/* Floating Chat Bubble */}
       <button className="fixed bottom-6 right-6 w-12 h-12 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:scale-110 transition-transform z-50">
         <MessageCircle size={24} />

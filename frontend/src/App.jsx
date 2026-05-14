@@ -11,7 +11,7 @@ import NurseMessaging from './pages/NurseMessaging';
 import KnowledgeHub from './pages/KnowledgeHub';
 
 import Login from './pages/Login';
-
+import DigitalTwin from './pages/DigitalTwin';
 function App() {
   return (
     <BrowserRouter>
@@ -23,7 +23,7 @@ function App() {
           <Route path="cro" element={<Nurse />} />
           <Route path="doctor" element={<Doctor />} />
           <Route path="summaries" element={<PatientSummaries />} />
-          <Route path="doctor-messaging" element={<DoctorMessaging />} />
+          <Route path="messaging" element={<DoctorMessaging />} />
           <Route path="nurse-messaging" element={<NurseMessaging />} />
           <Route path="knowledge-hub" element={<KnowledgeHub />} />
         </Route>
