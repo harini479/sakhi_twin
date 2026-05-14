@@ -8,6 +8,7 @@ import DoctorOnboarding from './pages/DoctorOnboarding';
 import PatientSummaries from './pages/PatientSummaries';
 import DoctorMessaging from './pages/DoctorMessaging';
 import NurseMessaging from './pages/NurseMessaging';
+import KnowledgeHub from './pages/KnowledgeHub';
 
 import Login from './pages/Login';
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="summaries" element={<PatientSummaries />} />
           <Route path="doctor-messaging" element={<DoctorMessaging />} />
           <Route path="nurse-messaging" element={<NurseMessaging />} />
+          <Route path="knowledge-hub" element={<KnowledgeHub />} />
         </Route>
       </Routes>
     </BrowserRouter>

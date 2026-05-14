@@ -130,9 +130,11 @@ const DoctorMessaging = () => {
   const activeH = selectedPatient?.session_state?.active_handler || 'twin';
   const currentMessages = selectedId ? (conversations[selectedId] || []) : [];
 
-  const filteredPatients = patients.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredPatients = patients.filter(p => {
+    const isResolved = p.session_state?.current_logic_branch === 'resolved';
+    if (isResolved) return false;
+    return p.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const handleSelectPatient = (id) => {
     const p = patients.find(pat => pat.id === id);
@@ -250,9 +252,14 @@ const DoctorMessaging = () => {
         {/* Header */}
         <div style={{ padding: '24px 20px 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <span style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
-              Communications
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>
+                Communications
+              </span>
+              <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', marginTop: '2px' }}>
+                Secure real-time triage
+              </span>
+            </div>
             <button
               style={{
                 width: '36px', height: '36px',
@@ -351,11 +358,7 @@ const DoctorMessaging = () => {
                     </div>
                     {/* METADATA STORE */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
-                      {p.treatment_cycle && (
-                        <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {p.treatment_cycle}
-                        </span>
-                      )}
+
                       
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '2px' }}>
                         {isEmergency && (
@@ -363,14 +366,6 @@ const DoctorMessaging = () => {
                             <AlertTriangle size={10} /> TAKEOVER FLAG
                           </span>
                         )}
-                        {parseFlags(p.clinical_flags).map((flag, idx) => (
-                           <span key={idx} style={{
-                             fontSize: '9px', fontWeight: 700, padding: '2px 6px',
-                             background: '#fef2f2', color: '#ef4444', borderRadius: '4px', textTransform: 'uppercase'
-                           }}>
-                             {flag}
-                           </span>
-                        ))}
                       </div>
                     </div>
                   </div>

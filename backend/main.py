@@ -109,6 +109,17 @@ async def patient_chat(req: ChatRequest):
             session_state = new_state
         else:
             session_state = session_state_res[0]
+            # Auto-Reopen if patient texts back a resolved chat
+            if session_state.get("current_logic_branch") == "resolved":
+                print(f"DEBUG: Re-opening resolved session for {req.user_id}")
+                session_state["current_logic_branch"] = "general"
+                session_state["active_handler"] = "twin"
+                session_state["is_emergency"] = False
+                await async_supabase_update(
+                    "session_states", 
+                    match=f"user_id=eq.{req.user_id}", 
+                    data={"current_logic_branch": "general", "active_handler": "twin", "is_emergency": False}
+                )
 
         # B. Store Patient Message
         await async_supabase_insert("messages", {
@@ -303,15 +314,20 @@ async def resolve_session(req: HandoverRequest):
     This triggers the appearance of the patient summary in the archive.
     """
     try:
+        # Always reset to AI Twin on resolution
+        data = {
+            "active_handler": "twin",
+            "is_emergency": False,
+            "current_logic_branch": "resolved",
+            "last_interaction": datetime.now()
+        }
+        
         await async_supabase_update(
             "session_states",
             match=f"user_id=eq.{req.user_id}",
-            data={
-                "active_handler": "twin",
-                "is_emergency": False,
-                "current_logic_branch": "resolved"
-            }
+            data=data
         )
+        print(f"DEBUG: Session resolved for {req.user_id}. Handler set to twin.")
         return {"status": "success", "message": "Session resolved, returned to Twin, and alerts cleared."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

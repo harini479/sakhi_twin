@@ -25,7 +25,7 @@ body {
 @layer components {
   .nav-item {
     display: flex;
-    items-center: center;
+    align-items: center;
     height: 40px;
     padding-left: 0.75rem;
     padding-right: 0.75rem;
